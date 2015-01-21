@@ -1,17 +1,34 @@
 package com.arduino.android.sample;
 
+import android.content.Context;
+import android.hardware.usb.UsbDevice;
+import android.hardware.usb.UsbManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+
+import java.util.HashMap;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements View.OnClickListener {
+
+    private UsbController usbController;
+    private Button bStartTransfer;
+    private TextView tvDebug;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        bStartTransfer = (Button)findViewById(R.id.bStartTransfer);
+        tvDebug = (TextView)findViewById(R.id.tvDebug);
+        usbController = new UsbController(getApplicationContext(),tvDebug);
+
     }
 
 
@@ -35,5 +52,13 @@ public class MainActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch(v.getId()){
+            case R.id.bStartTransfer:
+                usbController.initUSB();
+        }
     }
 }
