@@ -10,25 +10,63 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import java.util.HashMap;
 
 
-public class MainActivity extends ActionBarActivity implements View.OnClickListener {
+public class MainActivity extends ActionBarActivity {
 
     private UsbController usbController;
     private Button bStartTransfer;
+    private SeekBar seekBar;
     private TextView tvDebug;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        bStartTransfer = (Button)findViewById(R.id.bStartTransfer);
-        tvDebug = (TextView)findViewById(R.id.tvDebug);
-        usbController = new UsbController(getApplicationContext(),tvDebug);
+        initUI();
 
+    }
+
+    private void initUI(){
+        bStartTransfer = (Button)findViewById(R.id.bStartTransfer);
+        seekBar = (SeekBar)findViewById(R.id.seekBar);
+        tvDebug = (TextView)findViewById(R.id.tvDebug);
+
+        bStartTransfer.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                if(usbController == null){
+                   usbController = new UsbController(getApplicationContext(),getIntent(),tvDebug);
+                }else{
+                    usbController.stopUSBThread();
+                    usbController = new UsbController(getApplicationContext(),getIntent(),tvDebug);
+                }
+            }
+        });
+
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if(fromUser && usbController != null){
+                    usbController.sendData((byte)(progress & 0xFF));
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
     }
 
 
@@ -52,13 +90,5 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onClick(View v) {
-        switch(v.getId()){
-            case R.id.bStartTransfer:
-                usbController.initUSB();
-        }
     }
 }

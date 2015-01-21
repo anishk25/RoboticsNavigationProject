@@ -18,7 +18,18 @@
         android:layout_height="wrap_content"
         android:text="Debug Text"
         android:id="@+id/tvDebug"
-        android:layout_marginTop="42dp"
+        android:layout_marginTop="151dp"
         android:layout_below="@+id/bStartTransfer"
         android:layout_centerHorizontal="true" />
+
+    <SeekBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/seekBar"
+        android:layout_below="@+id/bStartTransfer"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="34dp"
+        android:progress="0"
+        android:max="255"
+        />
 </RelativeLayout>
