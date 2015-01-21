@@ -1,0 +1,17 @@
+#define TIMER_INTERUPT_PERIOD 100000
+#define WHEEL_CIRCUMFRENCE_CM 48.1
+#define TARGET_DISTANCE_CM 457.2
+
+#define MOTOR_FORWARD 80
+#define MOTOR_BACKWARD 110
+#define MOTOR_STOP 95
+
+#define MOTOR_PIN 11
+#define BACK_SERVO_PIN 8
+#define FRONT_SERVO_PIN 9
+#define LED_PIN 24
+
+//Kalman Filter Constants
+#define VELOCITY_NOISE 0.15
+#define POSITION_NOISE 0.15
+#define ENCODER_NOISE 0.05
