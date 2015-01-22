@@ -95,6 +95,7 @@ public class UsbController {
             }
             connection.controlTransfer(0x21,34,0,0,null,0,0);
             connection.controlTransfer(0x21,32,0,0,new byte[]{(byte)0x80,0x25,0x00, 0x00, 0x00, 0x00, 0x08},7,0);
+            connection.controlTransfer(0x40, 0x03, 0x4138, 0, null, 0, 0); //Baudrate 9600
 
             UsbEndpoint epIN = null;
             UsbEndpoint epOUT = null;
