@@ -23,16 +23,16 @@ end
 predLocs=[];
 for j=1:10000
     [x,y] = ind2sub(size(img), actualLocs(int64(rand*length(actualLocs))));
-    predLocs = [predLocs;x y rand*360];
+    predLocs = [predLocs;x y curBearing];
 end
-for i=1:10
+for i=1:length(listLocs)
     clf;
     imshow(img);
     hold on
     for k=1:1000
         plot(predLocs(k,2),predLocs(k,1),'bo'); 
     end
-    for j = 1:length(listLocs)
+    for j = 1:i
         plot(listLocs(j,2),listLocs(j,1),'rx'); 
     end
     predLocs2 = [];
