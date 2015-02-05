@@ -3,7 +3,7 @@
 
 #define DRIVE_MOTOR_PIN 11
 
-Encoder rightWheel(2,4);
+Encoder rightWheel(3,5);
 Servo driveMotor;
 
 float ratio = 64*16;
@@ -18,11 +18,21 @@ void setup(){
 
 void loop(){
   //driveMotor.write(80);
-  long newRight;  
+  /*long newRight;  
   newRight = rightWheel.read();
   
   if(newRight != positionRight){
-     Serial.println(newRight/ratio);
+     Serial.println(newRight);
      positionRight = newRight; 
+  }*/
+  updateEncoder(&rightWheel,&positionRight);
+}
+
+void updateEncoder(Encoder* encoder, long *currPos){
+  long newPos; 
+  newPos= encoder->read();
+  if(newPos != *currPos){
+    *currPos = newPos;
+     Serial.println(*currPos);
   }
 }
