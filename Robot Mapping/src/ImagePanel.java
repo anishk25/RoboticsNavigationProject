@@ -27,6 +27,8 @@ public class ImagePanel extends JPanel
 		Graphics g= image.getGraphics();
 		
 		g.drawImage(temp, 0, 0, width, height, null);
+		g.setColor(Color.YELLOW);
+		g.fillOval(300, 300, 4, 4);
 		g.dispose();		
 		
 		ImageIO.write(image, "png", new File("resizedImage.png"));
@@ -36,7 +38,7 @@ public class ImagePanel extends JPanel
 	protected void paintComponent(Graphics g)
 	{				
 		super.paintComponent(g);
-		g.drawImage(image, 0, 0, width, height, null);
+		g.drawImage(image, 0, 0, width, height, null);		
 	}
 	
 }
