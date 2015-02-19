@@ -21,7 +21,6 @@ public class UsbController {
     private Activity mActivity;
     private UsbManager mUsbManager;
     private UsbDevice usbDevice;
-    private final String ACTION_USB_PERMISSION= "com.arduino.android.sample.USB_PERMISSION";
     private TextView tvDebug;
     private UsbSendThread mUsbSend;
     private UsbReceiveThread mUsbReceive;
@@ -33,8 +32,7 @@ public class UsbController {
     public UsbController(Context context,Intent intent,TextView tvDebug, Activity activity){
         mApplicationContext = context;
         mIntent = intent;
-        this.mActivity = activity;
-        mUsbManager = (UsbManager)mApplicationContext.getSystemService(Context.USB_SERVICE);
+         mUsbManager = (UsbManager)mApplicationContext.getSystemService(Context.USB_SERVICE);
         usbDevice = (UsbDevice)mIntent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
         this.tvDebug = tvDebug;
 
@@ -88,8 +86,8 @@ public class UsbController {
 
 
 
-    public void sendData(byte data) {
-        mData = data;
+    public void sendData(byte[] data) {
+        mData = data.clone();
         synchronized (sSendLock) {
             sSendLock.notify();
         }
@@ -122,8 +120,9 @@ public class UsbController {
 
     // MAIN LOOP
     private static final Object[] sSendLock = new Object[]{};
+
     private boolean mStop = false;
-    private byte mData = 0x00;
+    private byte mData[];
 
     private class UsbSendThread implements Runnable{
 
@@ -131,11 +130,11 @@ public class UsbController {
         @Override
         public void run() {
             for(;;){
-                synchronized (sSendLock){
-                    try{
+                synchronized (sSendLock) {
+                    try {
                         sSendLock.wait();
-                        connection.bulkTransfer(epOUT,new byte[]{mData},1,0);
-                    }catch (InterruptedException e) {
+                        connection.bulkTransfer(epOUT, mData, mData.length, 20);
+                    } catch (InterruptedException e) {
                         if (mStop) {
                             tvDebug.setText("Usb Stopped");
                             return;
@@ -143,16 +142,12 @@ public class UsbController {
                         e.printStackTrace();
                     }
                 }
-
-
-
-
-
                 if(mStop){
                     tvDebug.setText("Usb Stopped");
                     return;
                 }
             }
+
         }
     }
 

@@ -15,12 +15,14 @@ import android.widget.TextView;
 
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements View.OnClickListener {
 
     private UsbController usbController;
-    private Button bStartTransfer;
+    private Button bStartTransfer,bBrightLED,bDarkLED;
     private SeekBar seekBar;
     private TextView tvDebug;
+    final String brightMessage = "BRIT";
+    final String darkMessage = "DARK";
 
 
 
@@ -34,29 +36,24 @@ public class MainActivity extends ActionBarActivity {
 
     private void initUI(){
         bStartTransfer = (Button)findViewById(R.id.bStartTransfer);
+        bBrightLED = (Button)findViewById(R.id.bBrightLED);
+        bDarkLED = (Button)findViewById(R.id.bDarkLED);
+
         seekBar = (SeekBar)findViewById(R.id.seekBar);
         tvDebug = (TextView)findViewById(R.id.tvDebug);
 
-        final Activity activity = this;
 
-        bStartTransfer.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                if(usbController == null){
-                    usbController = new UsbController(getApplicationContext(),getIntent(),tvDebug,activity);
-                }else{
-                    usbController.stopUSBThread();
-                    usbController = new UsbController(getApplicationContext(),getIntent(),tvDebug,activity);
-                }
-            }
-        });
+
+        bStartTransfer.setOnClickListener(this);
+        bBrightLED.setOnClickListener(this);
+        bDarkLED.setOnClickListener(this);
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
 
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if(fromUser && usbController != null){
-                    usbController.sendData((byte)(progress & 0xFF));
+                    usbController.sendData(new byte[]{(byte)(progress)});
                 }
             }
 
@@ -93,5 +90,26 @@ public class MainActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch(v.getId()){
+            case R.id.bStartTransfer:
+                if(usbController == null){
+                    usbController = new UsbController(getApplicationContext(),getIntent(),tvDebug,this);
+                }else{
+                    usbController.stopUSBThread();
+                    usbController = new UsbController(getApplicationContext(),getIntent(),tvDebug,this);
+                }
+                break;
+            case R.id.bDarkLED:
+                usbController.sendData(darkMessage.getBytes());
+                break;
+
+            case R.id.bBrightLED:
+                usbController.sendData(brightMessage.getBytes());
+                break;
+        }
     }
 }
