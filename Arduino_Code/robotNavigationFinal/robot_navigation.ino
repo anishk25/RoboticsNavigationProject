@@ -116,16 +116,12 @@ void updateEncoders(){
   newPos = rightWheel.read();
   if(-newPos != currEncPosRight){
     currEncPosRight = -newPos;
-    //Serial.print("right: ");
-    //Serial.println(currEncPosRight);
   }
   
   // update left Encoder
   newPos = leftWheel.read();
   if(newPos != currEncPosLeft){
     currEncPosLeft = newPos;
-    //Serial.print("left: ");
-    //Serial.println(currEncPosLeft);
   }
 }
 
