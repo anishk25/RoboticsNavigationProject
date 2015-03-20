@@ -1,8 +1,12 @@
 package com.robot.tesstwotest;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
@@ -24,6 +28,23 @@ public class MainActivity extends ActionBarActivity {
         File f = new File(data_path + "/TessTwoOcrLang/" + "eng.traineddata");
 
         tvInfo.setText(f.getTotalSpace()+"");
+
+        Log.d("das","gurkdugr");
+        Drawable d = getResources().getDrawable(R.drawable.ic_launcher);
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        //File mfile=new File("/res/drawable/ic_launcher.png");
+        //Bitmap bitmap = BitmapFactory.decodeFile(mfile.getAbsolutePath(), options);
+        Bitmap bitmap = BitmapFactory.decodeResource(this.getResources(),R.drawable.ic_launcher);
+
+        TessBaseAPI baseApi = new TessBaseAPI();
+        baseApi.init(null, "eng");
+        /*baseApi.setImage(bitmap);
+        String recognizedText = baseApi.getUTF8Text();
+
+        Log.d("Recognized Text", recognizedText);*/
+
+        baseApi.end();
     }
 
 

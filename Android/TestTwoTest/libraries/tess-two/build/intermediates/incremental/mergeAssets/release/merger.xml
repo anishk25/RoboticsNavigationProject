@@ -1,2 +1,2 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merger version="3"><dataSet config="main"><source path="/Users/anish_khattar25/Documents/robotics_project/Android/TestTwoTest/libraries/tess-two/src/main/assets"/></dataSet><dataSet config="release"><source path="/Users/anish_khattar25/Documents/robotics_project/Android/TestTwoTest/libraries/tess-two/src/release/assets"/></dataSet></merger>
+<merger version="3"><dataSet config="main"><source path="C:\Users\ryn\Documents\GitHub\RoboticsNavigationProject\Android\TestTwoTest\libraries\tess-two\src\main\assets"/></dataSet><dataSet config="release"><source path="C:\Users\ryn\Documents\GitHub\RoboticsNavigationProject\Android\TestTwoTest\libraries\tess-two\src\release\assets"/></dataSet></merger>
