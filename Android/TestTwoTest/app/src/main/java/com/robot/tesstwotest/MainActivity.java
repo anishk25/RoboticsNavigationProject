@@ -38,7 +38,20 @@ public class MainActivity extends ActionBarActivity {
         Bitmap bitmap = BitmapFactory.decodeResource(this.getResources(),R.drawable.ic_launcher);
 
         TessBaseAPI baseApi = new TessBaseAPI();
-        baseApi.init(null, "eng");
+        Log.d("Storage name",Environment.getExternalStorageDirectory().toString());
+        //File sdcard = new File("/mnt/sdcard/");
+        String SD_CARD_PATH = Environment.getExternalStorageDirectory().toString();
+        //new File(SD_CARD_PATH + "/" + "tessdata/");
+        /*File[] files = sdcard.listFiles();
+        for(int i=0;i<files.length;i++){
+            Log.d("File 1",files[i].getName());
+        }*/
+        //File file = new File(getExternalCacheDir(), "tesseract-ocr-3.02.eng.tar" );
+        /*File file = new File(sdcard,"tesseract-ocr-3.02.eng.tar.gz");
+        if (file.exists()) {
+            Log.d("File found","File Found");
+        }*/
+        baseApi.init(SD_CARD_PATH + "/" + "tessdata/", "eng");
         /*baseApi.setImage(bitmap);
         String recognizedText = baseApi.getUTF8Text();
 
