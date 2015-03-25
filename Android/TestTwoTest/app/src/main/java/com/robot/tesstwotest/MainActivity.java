@@ -29,35 +29,33 @@ public class MainActivity extends ActionBarActivity {
 
         tvInfo.setText(f.getTotalSpace()+"");
 
-        Log.d("das","gurkdugr");
         Drawable d = getResources().getDrawable(R.drawable.ic_launcher);
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inPreferredConfig = Bitmap.Config.ARGB_8888;
         //File mfile=new File("/res/drawable/ic_launcher.png");
         //Bitmap bitmap = BitmapFactory.decodeFile(mfile.getAbsolutePath(), options);
         Bitmap bitmap = BitmapFactory.decodeResource(this.getResources(),R.drawable.ic_launcher);
-
         TessBaseAPI baseApi = new TessBaseAPI();
         Log.d("Storage name",Environment.getExternalStorageDirectory().toString());
         //File sdcard = new File("/mnt/sdcard/");
         String SD_CARD_PATH = Environment.getExternalStorageDirectory().toString();
-        //new File(SD_CARD_PATH + "/" + "tessdata/");
-        /*File[] files = sdcard.listFiles();
-        for(int i=0;i<files.length;i++){
+        //SD_CARD_PATH = "/mnt/sdcard/";
+        SD_CARD_PATH=Environment.getExternalStorageDirectory().toString();
+        //File sdcard = new File(SD_CARD_PATH + "/" + "tessdata/");
+        File sdcard = Environment.getExternalStorageDirectory();
+        File[] files = sdcard.listFiles();
+        /*for(int i=0;i<files.length;i++){
             Log.d("File 1",files[i].getName());
         }*/
+        //File sdcard2 = new File(sdcard.getAbsoluteFile().toString() + "/" + "tessdata");
+        //Log.d("ufhkdsihfksdk",sdcard.getAbsoluteFile().toString());
         //File file = new File(getExternalCacheDir(), "tesseract-ocr-3.02.eng.tar" );
-        /*File file = new File(sdcard,"tesseract-ocr-3.02.eng.tar.gz");
-        if (file.exists()) {
-            Log.d("File found","File Found");
-        }*/
-        baseApi.init(SD_CARD_PATH + "/" + "tessdata/", "eng");
-        /*baseApi.setImage(bitmap);
+        baseApi.init(sdcard.getAbsoluteFile().toString(), "eng");
+        baseApi.setVariable("tessedit_char_whitelist", "abcdefghijklmnopqrstuvwxyz");
+        baseApi.setImage(bitmap);
         String recognizedText = baseApi.getUTF8Text();
-
-        Log.d("Recognized Text", recognizedText);*/
-
         baseApi.end();
+        Log.d("Recognized Text", recognizedText);
     }
 
 
