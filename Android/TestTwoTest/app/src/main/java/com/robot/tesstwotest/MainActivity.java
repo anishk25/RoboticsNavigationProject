@@ -1,5 +1,6 @@
 package com.robot.tesstwotest;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,36 +14,46 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.googlecode.tesseract.android.TessBaseAPI;
 
 import java.io.File;
 
-public class MainActivity extends ActionBarActivity implements View.OnClickListener{
+public class MainActivity extends Activity {
 
+    private CameraPreview mPreview;
+    private FaceView mFaceView;
     private TextView tvRecognizedText;
-    private Button bTakePhoto;
-    private TessBaseAPI tessBaseAPI;
 
-    private static final String DATA_PATH = "/storage/sdcard0/TessTwoOcrLang/";
-    //private static final String CHAR_LIST = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456790";
-    private static final String CHAR_LIST = "123456790";
 
-    private static final int REQUEST_IMAGE_CAPTURE = 1;
-    public static final String LANG = "eng";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        initUIAndApi();
+
+        tvRecognizedText = (TextView)findViewById(R.id.tvRecognizedText);
+        mFaceView = new FaceView(this,tvRecognizedText);
+        mPreview = new CameraPreview(this,mFaceView);
+
+
+        FrameLayout preview = (FrameLayout) findViewById(R.id.flCameraView);
+        preview.addView(mPreview);
+        preview.addView(mFaceView);
+
     }
 
-    private void initUIAndApi(){
-        tvRecognizedText = (TextView)findViewById(R.id.tvRecognizedText);
-        bTakePhoto = (Button)findViewById(R.id.bTakePhoto);
-        bTakePhoto.setOnClickListener(this);
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mFaceView.endTessApi();
+    }
 
+    @Override
+    protected  void onDestroy(){
+        super.onDestroy();
+        mFaceView.endTessApi();
     }
 
 
@@ -68,15 +79,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()){
-            case R.id.bTakePhoto:
-                takePhoto();
-                break;
-
-        }
-    }
+   /*
 
     private void takePhoto(){
         Intent takePhotoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -92,9 +95,10 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
             Bitmap imageBitmap = (Bitmap) extras.get("data");
             processBitmap(imageBitmap);
         }
-    }
+    }*/
 
-    private void processBitmap(Bitmap bitmap){
+
+    /*private void processBitmap(Bitmap bitmap){
         bitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
         tessBaseAPI = new TessBaseAPI();
         tessBaseAPI.setDebug(true);
@@ -104,5 +108,5 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         String recognizedText = tessBaseAPI.getUTF8Text();
         tessBaseAPI.end();
         tvRecognizedText.setText("Recognized text: " + recognizedText );
-    }
+    }*/
 }
