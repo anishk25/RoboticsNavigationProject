@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="/Users/anish_khattar25/Documents/robotics_project/Android/color-blob-detection/openCVSamplecolorblobdetection/build/intermediates/exploded-aar/color-blob-detection/openCVLibrary2411/unspecified/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="52896f7b61f949b2594dd212cd3730932efeefc1">
+        <dex dex="/Users/anish_khattar25/Documents/robotics_project/Android/color-blob-detection/openCVSamplecolorblobdetection/build/intermediates/pre-dexed/debug/classes-4ba933615b518c82b9e6b3e73b1762c64c3fd4c0.jar" />
+    </item>
+
+</items>
