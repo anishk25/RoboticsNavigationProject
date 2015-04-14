@@ -5,6 +5,7 @@ int id any 0x7f050000
 int id back 0x7f050001
 int id color_blob_detection_activity_surface_view 0x7f050003
 int id front 0x7f050002
+int id tvColorState 0x7f050004
 int layout color_blob_detection_surface_view 0x7f030000
 int string app_name 0x7f040000
 int[] styleable CameraBridgeViewBase { 0x7f010000, 0x7f010001 }

@@ -44,6 +44,7 @@ containing a value of this type.
         public static final int back=0x7f050001;
         public static final int color_blob_detection_activity_surface_view=0x7f050003;
         public static final int front=0x7f050002;
+        public static final int tvColorState=0x7f050004;
     }
     public static final class layout {
         public static final int color_blob_detection_surface_view=0x7f030000;

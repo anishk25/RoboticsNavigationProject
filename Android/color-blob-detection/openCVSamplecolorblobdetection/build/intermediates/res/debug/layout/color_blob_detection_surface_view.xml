@@ -1,12 +1,22 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    >
 
     <org.opencv.android.JavaCameraView
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_height="325dp"
         android:id="@+id/color_blob_detection_activity_surface_view" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Color State Here"
+        android:id="@+id/tvColorState"
+        />
+
 
 </LinearLayout>
 <!-- From: file:/Users/anish_khattar25/Documents/robotics_project/Android/color-blob-detection/openCVSamplecolorblobdetection/src/main/res/layout/color_blob_detection_surface_view.xml -->

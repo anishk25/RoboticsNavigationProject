@@ -19,11 +19,40 @@ public class ColorBlobDetector {
     private Scalar mLowerBound = new Scalar(0);
     private Scalar mUpperBound = new Scalar(0);
     // Minimum contour area in percent for contours filtering
-    private static double mMinContourArea = 500;
+    private static double mMinContourArea = 3000;
     // Color radius for range checking in HSV color space
-    private Scalar mColorRadius = new Scalar(40,40,40,0);
+    private Scalar mColorRadius = new Scalar(25,50,50,0);
     private List<MatOfPoint> mContours = new ArrayList<MatOfPoint>();
     private static String TAG = ColorBlobDetector.class.getCanonicalName();
+
+
+
+    public static  enum ColorState{
+        SEARCH_FIRST_STATE(-1),RED_STATE(0),YELLOW_STATE(1);
+
+        private final int value;
+        private ColorState(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+
+    };
+
+
+
+
+    private ColorState currColorState = ColorState.SEARCH_FIRST_STATE;
+    private static final Scalar  RED_COLOR = new Scalar(177, 10, 14,255);
+    private static final Scalar GREEN_COLOR = new Scalar(32, 102, 41, 255);
+    private static final Scalar YELLOW_COLOR = new Scalar(170, 170, 40, 255);
+
+    private static final Scalar [] COLORS_TO_SEARCH = {RED_COLOR,YELLOW_COLOR};
+    private static final ColorState [] COLOR_STATES = {ColorState.RED_STATE,ColorState.YELLOW_STATE};
+
 
 
     // Cache
@@ -58,7 +87,7 @@ public class ColorBlobDetector {
         mMinContourArea = area;
     }
 
-    private List<MatOfPoint> processColorInImage(Mat rgbaImage) {
+    private void processColorInImage(Mat rgbaImage) {
         Imgproc.pyrDown(rgbaImage, mPyrDownMat);
         Imgproc.pyrDown(mPyrDownMat, mPyrDownMat);
 
@@ -83,20 +112,19 @@ public class ColorBlobDetector {
 
         // Filter contours by area and resize to fit the original image size
         Iterator<MatOfPoint> each = contours.iterator();
-        List<MatOfPoint> filteredContours = new ArrayList<MatOfPoint>();
 
         each = contours.iterator();
+        mContours.clear();
         while (each.hasNext()) {
             MatOfPoint contour = each.next();
             double contourArea = Imgproc.contourArea(contour);
             if (contourArea > mMinContourArea) {
                 Core.multiply(contour, new Scalar(4,4), contour);
-                filteredContours.add(contour);
+                mContours.add(contour);
             }
         }
-        return filteredContours;
     }
-
+/*
     public void findSignColorsInImage(Mat rgbaImage){
         int foundColorCount = 0;
         ArrayList<Integer> colorIndices = new ArrayList<Integer>();
@@ -116,7 +144,40 @@ public class ColorBlobDetector {
         for(Integer i: colorIndices){
             Log.i(TAG,"Found sign color: " + SignColors.SIGN_COLORS_STRINGS[i]);
         }
+    }*/
 
+    public void searchForColor(Mat rgbaImage){
+        List<MatOfPoint> contours;
+        switch(currColorState){
+            case SEARCH_FIRST_STATE:
+                for(int i = 0; i < COLORS_TO_SEARCH.length; i++){
+                    setHsvColor(convertScalarRgba2Hsv(COLORS_TO_SEARCH[i]));
+                    processColorInImage(rgbaImage);
+                    if(mContours.size() > 0){
+                        currColorState = COLOR_STATES[i];
+                        break;
+                    }
+                }
+                break;
+            case RED_STATE:
+                setHsvColor(convertScalarRgba2Hsv(RED_COLOR));
+                processColorInImage(rgbaImage);
+                if(mContours.size() > 0){
+                    currColorState = COLOR_STATES[(currColorState.getValue() + 1) % COLOR_STATES.length];
+                }
+                break;
+            case YELLOW_STATE:
+                setHsvColor(convertScalarRgba2Hsv(YELLOW_COLOR));
+                processColorInImage(rgbaImage);
+                if(mContours.size() > 0){
+                    currColorState = COLOR_STATES[(currColorState.getValue() + 1) % COLOR_STATES.length];
+                }
+                break;
+        }
+    }
+
+    public ColorState getCurrColorState(){
+        return currColorState;
     }
 
     private Scalar convertScalarRgba2Hsv(Scalar rgbaColor){
