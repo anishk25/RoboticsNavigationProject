@@ -105,6 +105,8 @@ public class ColorBlobDetectionActivity extends Activity implements CameraBridge
         OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_3, this, mLoaderCallback);
     }
 
+
+
     public void onDestroy() {
         super.onDestroy();
         if(usbController != null) {
