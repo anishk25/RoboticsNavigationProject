@@ -1,0 +1,8 @@
+Project End Date: 9th May 2015 Project Days Left: 24
+
+Things Left To Do:
+- Basic Paper Counting in Hallway
+- Navigation in one hallway
+- Navigation in multiple hallways(shouldn't be too hard one one hallway is done, only tricky part is turning)
+- Path planning(probably most challenging part, might not get to this)
+- Sending messages to robot through server to tell where to go
