@@ -22,7 +22,6 @@ public class ColorBlobDetector {
     private Scalar mColorRadius = new Scalar(25,50,50,0);
     private Mat mSpectrum = new Mat();
     private List<MatOfPoint> mContours = new ArrayList<MatOfPoint>();
-    private List<Rect> mRectangles = new ArrayList<Rect>();
 
     // Cache
     Mat mPyrDownMat = new Mat();
@@ -94,7 +93,6 @@ public class ColorBlobDetector {
 
         // Filter contours by area and resize to fit the original image size
         mContours.clear();
-        mRectangles.clear();
         each = contours.iterator();
         while (each.hasNext()) {
             MatOfPoint currContour = each.next();
@@ -108,7 +106,6 @@ public class ColorBlobDetector {
                 contour2f.convertTo(approxContour, CvType.CV_32S);*/
 
                 mContours.add(currContour);
-                mRectangles.add(Imgproc.boundingRect(currContour));
             }
         }
     }
@@ -117,9 +114,6 @@ public class ColorBlobDetector {
         return mContours;
     }
 
-    public List<Rect> getRectangles(){
-        return mRectangles;
-    }
 
 
 }

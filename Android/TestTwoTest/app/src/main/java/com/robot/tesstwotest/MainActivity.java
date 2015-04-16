@@ -26,6 +26,8 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.View.OnTouchListener;
+import android.widget.TextView;
+
 import com.googlecode.tesseract.android.TessBaseAPI;
 
 import java.io.File;
@@ -49,8 +51,12 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
     // Tess api variables
     private TessBaseAPI tessBaseAPI;
     private static final String DATA_PATH = "/storage/sdcard0/TessTwoOcrLang/";
-    private static final String CHAR_LIST = "123456790";
-    public static final String LANG = "eng";
+    private static final String CHAR_LIST = "5@?<W";
+    private static final String LANG = "eng";
+    private static int FRAME_RATE = 30;
+    private int currFrame = 0;
+    private TextView tvRecognizedText;
+
 
     private BaseLoaderCallback  mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -80,9 +86,9 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         setContentView(R.layout.activity_main);
-
         mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.color_blob_detection_activity_surface_view);
         mOpenCvCameraView.setCvCameraViewListener(this);
+        tvRecognizedText = (TextView)findViewById(R.id.tvRecognizedText);
     }
 
     @Override
@@ -174,20 +180,19 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 
     public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
         mRgba = inputFrame.rgba();
-
+        currFrame++;
         if (mIsColorSelected) {
             mDetector.process(mRgba);
-            List<MatOfPoint> contours = mDetector.getContours();
-            Log.e(TAG, "Contours count: " + contours.size());
             // Imgproc.drawContours(mRgba, contours, -1, CONTOUR_COLOR);
             drawRectangles();
             Mat colorLabel = mRgba.submat(4, 68, 4, 68);
             colorLabel.setTo(mBlobColorRgba);
-
             Mat spectrumLabel = mRgba.submat(4, 4 + mSpectrum.rows(), 70, 70 + mSpectrum.cols());
             mSpectrum.copyTo(spectrumLabel);
         }
-
+        if(currFrame == FRAME_RATE){
+            currFrame = 0;
+        }
         return mRgba;
     }
 
@@ -208,25 +213,26 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
             Point p2 = new Point(rect.x + rect.width,rect.y + rect.height);
             Rect cropRect = new Rect(p1,p2);
             Core.rectangle(mRgba,p1,p2,CONTOUR_COLOR);
-            getText(cropRect);
+            if(currFrame == FRAME_RATE) {
+                getText(cropRect);
+            }
         }
     }
 
 
     private void getText(Rect cropRect){
-        if(tessBaseAPI == null) {
-            initTess();
-        }
-
+        initTess();
         Mat subMat = mRgba.submat(cropRect);
-        //Mat temp = new Mat(cropRect.height,cropRect.width,CvType.CV_8U,new Scalar(4));
-       // Imgproc.cvtColor(subMat,temp,Imgproc.COLOR_RGBA2GRAY,1);
-        Bitmap bitmap = Bitmap.createBitmap( subMat.cols(), subMat.rows(),Bitmap.Config.ARGB_8888);
-        Utils.matToBitmap(subMat,bitmap);
+        Mat temp = new Mat(cropRect.height,cropRect.width,CvType.CV_8U,new Scalar(4));
+        Imgproc.cvtColor(subMat,temp,Imgproc.COLOR_RGBA2GRAY);
+        Imgproc.blur(temp,temp,new Size(2,2));
+        Bitmap bitmap = Bitmap.createBitmap( temp.cols(), temp.rows(),Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(temp,bitmap);
         tessBaseAPI.setImage(bitmap);
         String recognizedText = tessBaseAPI.getUTF8Text();
         Log.i(TESS_TAG,"Recognized text: " + recognizedText);
-
+        endTessApi();
+        //tvRecognizedText.setText("Recognized text: " + recognizedText);
     }
 
     public void initTess(){
@@ -244,12 +250,10 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
     }
 
 
-
     private Scalar converScalarHsv2Rgba(Scalar hsvColor) {
         Mat pointMatRgba = new Mat();
         Mat pointMatHsv = new Mat(1, 1, CvType.CV_8UC3, hsvColor);
         Imgproc.cvtColor(pointMatHsv, pointMatRgba, Imgproc.COLOR_HSV2RGB_FULL, 4);
-
         return new Scalar(pointMatRgba.get(0, 0));
     }
 }
