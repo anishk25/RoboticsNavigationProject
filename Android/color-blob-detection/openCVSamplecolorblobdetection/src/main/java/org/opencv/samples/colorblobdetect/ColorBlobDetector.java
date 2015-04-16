@@ -1,5 +1,7 @@
 package org.opencv.samples.colorblobdetect;
 
+import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -7,12 +9,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
 
+import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
+
 
 public class ColorBlobDetector {
     // Lower and Upper bounds for range checking in HSV color space
@@ -24,7 +28,6 @@ public class ColorBlobDetector {
     private Scalar mColorRadius = new Scalar(25,50,50,0);
     private List<MatOfPoint> mContours = new ArrayList<MatOfPoint>();
     private static String TAG = ColorBlobDetector.class.getCanonicalName();
-
 
 
     public static  enum ColorState{
@@ -145,6 +148,24 @@ public class ColorBlobDetector {
             Log.i(TAG,"Found sign color: " + SignColors.SIGN_COLORS_STRINGS[i]);
         }
     }*/
+
+
+    public static boolean initOpenCV(String Version, final Context AppContext,
+                                     final LoaderCallbackInterface Callback) {
+
+        AsyncServiceHelper helper = new AsyncServiceHelper(Version, AppContext,
+                Callback);
+        Intent intent = new Intent("org.opencv.engine.BIND");
+        intent.setPackage("org.opencv.engine");
+        if (AppContext.bindService(intent, helper.mServiceConnection,
+                Context.BIND_AUTO_CREATE)) {
+            return true;
+        } else {
+            AppContext.unbindService(helper.mServiceConnection);
+            InstallService(AppContext, Callback);
+            return false;
+        }
+    }
 
     public void searchForColor(Mat rgbaImage){
         List<MatOfPoint> contours;
