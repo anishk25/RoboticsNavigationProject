@@ -1,0 +1,8 @@
+Cotour Detection in OpenCV
+http://www.cuelogic.com/blog/opencv-contour-detection-in-android-2/
+
+Opencv Java API: http://docs.opencv.org/java/
+
+Shape detection: http://opencv-srf.blogspot.com/2011/09/object-detection-tracking-using-contours.html
+
+Shape detection improved: https://opencvproject.wordpress.com/projects-files/detection-shape/
