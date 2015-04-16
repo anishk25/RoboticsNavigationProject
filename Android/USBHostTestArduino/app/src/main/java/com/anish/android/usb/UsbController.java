@@ -34,6 +34,7 @@ public class UsbController {
         mIntent = intent;
          mUsbManager = (UsbManager)mApplicationContext.getSystemService(Context.USB_SERVICE);
         usbDevice = (UsbDevice)mIntent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+        mActivity = activity;
         this.tvDebug = tvDebug;
 
         if(usbDevice != null && mUsbManager.hasPermission(usbDevice)){
