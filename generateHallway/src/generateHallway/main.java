@@ -13,9 +13,12 @@ public class main {
 		ArrayList<Integer>blankenshipHallway = new ArrayList<Integer>();
 		ArrayList<Integer>rennerHallway = new ArrayList<Integer>();
 		ArrayList<Integer>sunLabHallway = new ArrayList<Integer>();
+		ArrayList<Integer> curHallway;
+		double curPos = 0; //represents the current position along the current hallway
 		// Generate Blankenship Hallway
-		double [] blankenshipDistances = {8.5,13,8.5,13,8,14,10,10,6,17,10,12,10};
-		int [] blankenshipRooms = {1409, 1411, 1415,1415,1417,1417,1421,1423,1427,1427,1431,1431,1433};
+		//Added 5 at end of array to signify end of hallway, using 9001 to signify this
+		double [] blankenshipDistances = {6,13,8.5,13,8,14,10,10,6,17,10,12,10,5};
+		int [] blankenshipRooms = {1409, 1411, 1415,1415,1417,1417,1421,1423,1427,1427,1431,1431,1433,9001};
 		for(int i=0;i<blankenshipDistances.length;++i){
 			distances.add(blankenshipDistances[i]);
 		}
@@ -36,8 +39,8 @@ public class main {
 		// Generate Renner Hallway
 		distances.clear();
 		roomNums.clear();
-		double [] rennerDistances = {10.5,11,9,12,9, 13,11,9,11,13,9,13,9,9,9,11,7,27,8,33.5};
-		int [] rennerRooms = {1315,1317,1321,1321,1323,1323,1325,1327,1329,1329,1333,1333,1337,1337,1339,1498,1498,1405,1405,9000};
+		double [] rennerDistances = {8,11,9,12,9, 13,11,9,11,13,9,13,9,9,9,11,7,8,19,8,31};
+		int [] rennerRooms = {1315,1317,1321,1321,1323,1323,1325,1327,1329,1329,1333,1333,1337,1337,1339,1498,1498,5000,1405,1405,5001};
 		for(int i=0;i<rennerDistances.length;++i){
 			distances.add(rennerDistances[i]);
 		}
@@ -58,8 +61,8 @@ public class main {
 		// Generate SunLab Hallway
 		distances.clear();
 		roomNums.clear();
-		double [] sunLabDistances = {38.5,5,24,5,6,5,28,6,21,5,12};
-		int [] sunLabRooms = {1458,1458,1454,1454,1450,1450,1446,1446,1442,1442,5000};
+		double [] sunLabDistances = {36,5,24,5,6,5,28,6,21,5,12};
+		int [] sunLabRooms = {1458,1458,1454,1454,1450,1450,1446,1446,1442,1442,9000};
 		for(int i=0;i<sunLabDistances.length;++i){
 			distances.add(sunLabDistances[i]);
 		}
@@ -77,7 +80,8 @@ public class main {
 			sunLabHallway.add(room);
 		}
 		
-		for(int i=0;i<blankenshipHallway.size();++i){
+		// print out hallway arrays
+		/*for(int i=0;i<blankenshipHallway.size();++i){
 			System.out.print(blankenshipHallway.get(i)+" ");
 		}
 		System.out.println();
@@ -87,6 +91,57 @@ public class main {
 		System.out.println();
 		for(int i=0;i<sunLabHallway.size();++i){
 			System.out.print(sunLabHallway.get(i)+" ");
+		}*/
+		
+		//Used to find where robot is on map as well as if it needs to do a map change
+		curHallway = rennerHallway;
+		if(curHallway.get((int)(curPos/0.5)) == 9000){
+			System.out.println("End of Sun lab");
 		}
+		if(curHallway.get((int)(curPos/0.5)) == 9001){
+			System.out.println("End of Blankenship hallway");
+		}
+		if(curHallway.get((int)(curPos/0.5)) == 5000){
+			//Turn into sun lab hallway
+			curHallway = sunLabHallway;
+			curPos = 0;
+		}
+		if(curHallway.get((int)(curPos/0.5)) == 5001){
+			//Turn into Blankenship hallway
+			curHallway = blankenshipHallway;
+			curPos = 0;
+		}
+		
+		
+		// Used for me to see and check map
+		/*int numZeros = 0;
+		for(int i=0;i<blankenshipHallway.size();++i){
+			if(blankenshipHallway.get(i)==0)
+				numZeros++;
+			else{
+				System.out.print(numZeros+" "+blankenshipHallway.get(i)+" ");
+				numZeros = 0;
+			}
+		}
+		System.out.println();
+		numZeros = 0;
+		for(int i=0;i<rennerHallway.size();++i){
+			if(rennerHallway.get(i)==0)
+				numZeros++;
+			else{
+				System.out.print(numZeros+" "+rennerHallway.get(i)+" ");
+				numZeros = 0;
+			}
+		}
+		numZeros = 0;
+		System.out.println();
+		for(int i=0;i<sunLabHallway.size();++i){
+			if(sunLabHallway.get(i)==0)
+				numZeros++;
+			else{
+				System.out.print(numZeros+" "+sunLabHallway.get(i)+" ");
+				numZeros = 0;
+			}
+		}*/
 	}
 }
