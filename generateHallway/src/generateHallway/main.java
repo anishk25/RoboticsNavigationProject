@@ -93,26 +93,42 @@ public class main {
 			System.out.print(sunLabHallway.get(i)+" ");
 		}*/
 		
+		int turnAt;
+		// Will be populated later (HTTP Request?)
+		int roomNumToFind = 1417;
+		if(blankenshipHallway.contains(roomNumToFind))
+			turnAt = 5001;
+		if(sunLabHallway.contains(roomNumToFind))
+			turnAt = 5000;
+		
+		boolean end=false;
 		//Used to find where robot is on map as well as if it needs to do a map change
-		curHallway = rennerHallway;
-		if(curHallway.get((int)(curPos/0.5)) == 9000){
-			System.out.println("End of Sun lab");
+		while(end==false){
+			curHallway = rennerHallway;
+			if(curHallway.get((int)(curPos/0.5)) == 9000){
+				System.out.println("End of Sun lab");
+				end = true;
+			}
+			if(curHallway.get((int)(curPos/0.5)) == 9001){
+				System.out.println("End of Blankenship hallway");
+				end = true;
+			}
+			if(curHallway.get((int)(curPos/0.5)) == 5000){
+				//Turn into sun lab hallway
+				curHallway = sunLabHallway;
+				curPos = 0;
+			}
+			if(curHallway.get((int)(curPos/0.5)) == 5001){
+				//Turn into Blankenship hallway
+				curHallway = blankenshipHallway;
+				curPos = 0;
+			}
+			if(curHallway.get((int)(curPos/0.5)) == roomNumToFind){
+				end = true;
+				System.out.println("Found the room");
+			}
+			//curPos += getHowMuchFurtherRobotHasGone or curPos = exactDistMoved
 		}
-		if(curHallway.get((int)(curPos/0.5)) == 9001){
-			System.out.println("End of Blankenship hallway");
-		}
-		if(curHallway.get((int)(curPos/0.5)) == 5000){
-			//Turn into sun lab hallway
-			curHallway = sunLabHallway;
-			curPos = 0;
-		}
-		if(curHallway.get((int)(curPos/0.5)) == 5001){
-			//Turn into Blankenship hallway
-			curHallway = blankenshipHallway;
-			curPos = 0;
-		}
-		
-		
 		// Used for me to see and check map
 		/*int numZeros = 0;
 		for(int i=0;i<blankenshipHallway.size();++i){
