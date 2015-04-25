@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.github.nkzawa.emitter.Emitter;
@@ -18,13 +20,15 @@ import org.json.JSONObject;
 import java.net.URISyntaxException;
 
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements View.OnClickListener {
 
-    private TextView tvSocketMessage;
+    private TextView tvSocketMessage,tvArduinoDebug;
+    private Button bStartTransfer;
     private Socket mSocket;
     private static final String SERVER_URL = "http://floating-fortress-9962.herokuapp.com/";
     private static final String TAG = MainActivity.class.getCanonicalName();
     private static final String SOCKET_HANDLE = "robot_command";
+    private UsbController usbController;
     private Emitter.Listener onRobotMessage;
 
     @Override
@@ -32,9 +36,16 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        tvSocketMessage = (TextView)findViewById(R.id.tvSocketMessage);
+        initUI();
         setupSocketIO();
 
+    }
+
+    private void initUI(){
+        tvSocketMessage = (TextView)findViewById(R.id.tvSocketMessage);
+        tvArduinoDebug = (TextView)findViewById(R.id.tvArduinoDebug);
+        bStartTransfer = (Button)findViewById(R.id.bStartTransfer);
+        bStartTransfer.setOnClickListener(this);
     }
 
 
@@ -51,6 +62,7 @@ public class MainActivity extends Activity {
                         try {
                             direction = data.getString("direction");
                             tvSocketMessage.setText("Direction Received: " + direction);
+                            sendMessageToArduino(direction);
                         } catch (JSONException e) {
                             return;
                         }
@@ -65,6 +77,12 @@ public class MainActivity extends Activity {
             mSocket.connect();
         }catch (URISyntaxException e){
             Log.d(TAG,e.getMessage());
+        }
+    }
+
+    private void sendMessageToArduino(String msg){
+        if(usbController != null){
+            usbController.sendData(msg.getBytes());
         }
     }
 
@@ -91,5 +109,20 @@ public class MainActivity extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.bStartTransfer:
+                if(usbController == null){
+                    usbController = new UsbController(getApplicationContext(),getIntent(),tvArduinoDebug,this);
+                }else{
+                    usbController.stopUSBThread();
+                    usbController = null;
+                    usbController = new UsbController(getApplicationContext(),getIntent(),tvArduinoDebug,this);
+                }
+                break;
+        }
     }
 }

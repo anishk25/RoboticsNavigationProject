@@ -44,6 +44,7 @@ void setup(){
   motorServo.attach(MOTOR_PIN);
   frontServo.attach(FRONT_SERVO_PIN);
   backServo.attach(BACK_SERVO_PIN);
+  pinMode(LED_PIN,OUTPUT);
   
   frontServo.write(STRAIGHT_ANGLE);
   backServo.write(STRAIGHT_ANGLE);
@@ -74,7 +75,8 @@ void loop(){
   }
     frontServo.write(servoAngle);
     motorServo.write(motorDirection);
-}
+    analogWrite(LED_PIN,ledBrightness);
+}  
 
 
 
