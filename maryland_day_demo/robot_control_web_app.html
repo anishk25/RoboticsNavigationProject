@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="arrow_buttons.css" media="screen" />
+</head>
+<body>
+
+
+
+<table>
+  
+  <tr>
+    <td></td>
+    <td><button id = "button_up"style="width:60px;height:60px" type="button">&#8593;</button></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td><button id = "button_left" style="width:60px;height:60px" type="button"> &#8592; </button></td>
+    <td><button id = "button_down" style="width:60px;height:60px" type="button">&#8595;</button></td>
+    <td><button id = "button_right" style="width:60px;height:60px" type="button">&#8594;</button></td>
+  </tr>
+</table> 
+<br/>
+
+<table>
+  <tr>
+    <td><button id = "button_stop"style="width:190px;height:60px" type="button">STOP</button></td>
+  </tr>
+</table> 
+
+
+<script type="text/javascript">
+document.addEventListener('keydown', function(event) {
+	switch(event.keyCode){
+		case 32:  document.getElementById('button_stop').focus(); break;
+		case 37: document.getElementById('button_left').focus(); break;
+		case 38: document.getElementById('button_up').focus(); break;
+		case 39: document.getElementById('button_right').focus(); break;
+		case 40: document.getElementById('button_down').focus(); break;
+	}
+});
+
+document.addEventListener('keyup', function(event) {
+	switch(event.keyCode){
+		case 32:  document.getElementById('button_stop').blur(); break;
+		case 37: document.getElementById('button_left').blur(); break;
+		case 38: document.getElementById('button_up').blur(); break;
+		case 39: document.getElementById('button_right').blur(); break;
+		case 40: document.getElementById('button_down').blur(); break;
+	}
+});
+
+</script>
+ 
+</body>
+</html>
