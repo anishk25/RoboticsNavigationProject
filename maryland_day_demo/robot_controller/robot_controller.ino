@@ -25,8 +25,8 @@
 // but LEFT and RIGHT values might need to be 
 // swapped
 #define STRAIGHT_ANGLE  90
-#define LEFT_ANGLE      110
-#define RIGHT_ANGLE     70
+#define LEFT_ANGLE      120
+#define RIGHT_ANGLE     60
 
 // might have to change the pin connections of front and back servo
 // pin, only the front one will be changing angles
