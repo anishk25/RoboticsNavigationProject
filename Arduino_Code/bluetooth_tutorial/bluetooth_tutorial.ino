@@ -1,39 +1,29 @@
- // refer
- // http://mcuoneclipse.com/2013/06/19/using-the-hc-06-bluetooth-module/
- // for baud rates
-
- // HC-06 Data Sheet
- // http://www.e-gizmo.com/KIT/images/EGBT-04/EGBT-045MS-046S%20Bluetooth%20Module%20Manual%20rev%201r0.pdf
-
 #include <SoftwareSerial.h>
 
+#define LED_PIN 13
 #define RX_PIN 10
 #define TX_PIN 11
-#define KEY_PIN 7
 
-SoftwareSerial MySerial(RX_PIN,TX_PIN);
-String response = "";
+
+SoftwareSerial bluetooth(RX_PIN,TX_PIN);
+int bluetooth_data;
 
 void setup(){
-   pinMode(KEY_PIN,OUTPUT);
-   digitalWrite(KEY_PIN,HIGH);
-   Serial.begin(9600);
-   Serial.println("Enter AT commands:");
-
-   
-   MySerial.write("AT+BAUD4");
-   MySerial.begin(9600);
+  bluetooth.begin(9600);
+  bluetooth.println("Bluetooth On Please press 1 or 0 to blink LED..");
+  pinMode(LED_PIN,OUTPUT);
 }
 
 void loop(){
-   if(MySerial.available()){
-     while(MySerial.available()){
-       response += (char)MySerial.read();
-     }
-     Serial.println(response);
-     response = "";
+   if(bluetooth.available()){
+      bluetooth_data = bluetooth.read();
+      if(bluetooth_data == '1'){
+         digitalWrite(LED_PIN,HIGH); 
+         bluetooth.println("LED on Arduino ON!");
+      }else if(bluetooth_data == '0'){
+         digitalWrite(LED_PIN,LOW);
+          bluetooth.println("LED on Arduino OFF!"); 
+      }
    }
-   if(Serial.available()){
-      MySerial.write(Serial.read()); 
-   }
+  delay(100);
 }
