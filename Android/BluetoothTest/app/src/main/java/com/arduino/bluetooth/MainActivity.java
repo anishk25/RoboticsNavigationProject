@@ -26,14 +26,18 @@ public class MainActivity extends Activity implements View.OnClickListener{
     private static final int REQUEST_ENABLE_BT = 1;
     private BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     private static final String HC05_BLUETOOTH_ADDRESS = "98:D3:31:40:10:9E";
-    private BluetoothDevice hc05Device;
-    private UUID hc05_UUID;
+    private static final String HC05_BLUETOOTH_ADDRESS2 = "98:D3:31:90:0C:7C";
+    private static final String SMIRF_BLUETOOTH_ADDRESS = "00:06:66:64:35:A6";
+    private BluetoothDevice pairedBluetoothDevice;
+    private UUID pairedDeviceUUID;
     private BluetoothManager bluetoothManager;
 
     //UI Elements
-    private TextView tvBluetooth;
+    private TextView tvBluetooth,tvReceivedText;
     private Button bConnect,bSendMsg;
     private EditText etMessage;
+    String receivedMessage;
+    boolean receiveFirstTime = true;
 
 
     @Override
@@ -42,12 +46,13 @@ public class MainActivity extends Activity implements View.OnClickListener{
         setContentView(R.layout.activity_main);
         initUI();
         enableBluetooth();
-        findHC05Device();
-        bluetoothManager = new BluetoothManager(hc05Device,mBluetoothAdapter,hc05_UUID);
+        findBluetoothDevice(HC05_BLUETOOTH_ADDRESS2);
+        bluetoothManager = new BluetoothManager(pairedBluetoothDevice,mBluetoothAdapter,pairedDeviceUUID,this);
     }
 
     private void initUI(){
         tvBluetooth = (TextView)findViewById(R.id.tvBluetooth);
+        tvReceivedText = (TextView)findViewById(R.id.tvReceivedText);
         bConnect = (Button)findViewById(R.id.bStartBluetoothConnection);
         bSendMsg = (Button)findViewById(R.id.bSendMessage);
         etMessage = (EditText)findViewById(R.id.etMessage);
@@ -64,19 +69,23 @@ public class MainActivity extends Activity implements View.OnClickListener{
         }
     }
 
-    private void findHC05Device(){
+    private void findBluetoothDevice(String address){
         Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
+        String s = "";
         if(pairedDevices.size() > 0){
             for(BluetoothDevice device: pairedDevices){
-                if(device.getAddress().equals(HC05_BLUETOOTH_ADDRESS)){
-                    hc05Device = device;
+               if(device.getAddress().equals(address)){
+                    pairedBluetoothDevice = device;
                 }
+                //s+= "Device Name: " + device.getName() + " Address: " + device.getAddress()+"\n";
+
             }
         }
-        if(hc05Device != null){
-            hc05_UUID = UUID.fromString(hc05Device.getUuids()[0].toString());
-            tvBluetooth.setText("Found Device with name " + hc05Device.getName() + " and UUID " + hc05Device.getUuids()[0].toString() ) ;
+        if(pairedBluetoothDevice != null){
+            pairedDeviceUUID = UUID.fromString(pairedBluetoothDevice.getUuids()[0].toString());
+            tvBluetooth.setText("Found Device with name " + pairedBluetoothDevice.getName() + " and UUID " + pairedBluetoothDevice.getUuids()[0].toString() ) ;
         }
+        //tvBluetooth.setText(s);
     }
 
 
@@ -110,10 +119,34 @@ public class MainActivity extends Activity implements View.OnClickListener{
                 break;
             case R.id.bSendMessage:
                     String msg = etMessage.getText().toString();
-                    if(msg.length() > 0){
+                    if(msg.length() > 0 && msg.length() < 4){
+                        if(msg.length() == 1){
+                            msg = "00" + msg;
+                        }else if(msg.length() == 2){
+                            msg = "0" + msg;
+                        }
                         bluetoothManager.sendMessage(msg.getBytes());
                     }
                 break;
+        }
+    }
+
+    public void updateReceivedText(int bytesRead, byte[] buffer){
+        String msg = new String(buffer,0,bytesRead);
+        //tvReceivedText.setText(msg);
+        if(receiveFirstTime){
+            receivedMessage = msg;
+            receiveFirstTime = false;
+            if(msg.substring(msg.length()-1).equals(".")){
+                receiveFirstTime = true;
+                tvReceivedText.setText(receivedMessage);
+            }
+        }else{
+            receivedMessage += msg;
+            if(msg.substring(msg.length()-1).equals(".")){
+                receiveFirstTime = true;
+                tvReceivedText.setText(receivedMessage);
+            }
         }
     }
 }

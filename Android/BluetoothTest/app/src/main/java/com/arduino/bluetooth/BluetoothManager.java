@@ -19,13 +19,16 @@ public class BluetoothManager {
     private final UUID device_UUID;
     private InputStream mmInStream;
     private OutputStream mmOutStream;
+    private MainActivity passingActivity;
+
 
     private ConnectThread connectThread;
     private MessageThread messageThread;
-    public BluetoothManager(BluetoothDevice device, BluetoothAdapter adapter, UUID device_UUID){
+    public BluetoothManager(BluetoothDevice device, BluetoothAdapter adapter, UUID device_UUID,MainActivity mainActivity){
         this.mmDevice = device;
         this.mBluetoothAdapter = adapter;
         this.device_UUID = device_UUID;
+        this.passingActivity = mainActivity;
     }
 
 
@@ -34,13 +37,19 @@ public class BluetoothManager {
         connectThread.start();
         messageThread = new MessageThread();
         messageThread.start();
+    }
 
+    public void closeSocket(){
+        if(mmSocket != null){
+            messageThread.cancel();
+        }
     }
 
     public void sendMessage(byte[] bytes) {
-         messageThread.write(bytes);
+         if(messageThread != null) {
+             messageThread.write(bytes);
+         }
     }
-
 
 
    private class ConnectThread extends Thread {
@@ -87,6 +96,9 @@ public class BluetoothManager {
 
 
     private class MessageThread extends Thread {
+        private byte[] read_buffer = new byte[1024];
+        private int num_bytes_read = 0;
+
         public MessageThread(){
         }
 
@@ -107,15 +119,18 @@ public class BluetoothManager {
         }
 
         public void run() {
-            byte[] buffer = new byte[1024];  // buffer store for the stream
-            int bytes; // bytes returned from read()
-
             // Keep listening to the InputStream until an exception occurs
             while (true) {
                 try {
                     // Read from the InputStream
                     if(mmInStream != null) {
-                        bytes = mmInStream.read(buffer);
+                        num_bytes_read = mmInStream.read(read_buffer);
+                        passingActivity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                passingActivity.updateReceivedText(num_bytes_read,read_buffer);
+                            }
+                        });
                     }
                     // Send the obtained bytes to the UI activity;
                 } catch (IOException e) {
