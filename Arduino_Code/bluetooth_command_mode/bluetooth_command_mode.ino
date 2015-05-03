@@ -1,8 +1,8 @@
 #include <SoftwareSerial.h>
 
-#define KEY_PIN 9
-#define RX_PIN 10
-#define TX_PIN 11
+#define KEY_PIN 2
+#define RX_PIN 3
+#define TX_PIN 4
 
 SoftwareSerial bluetooth(RX_PIN,TX_PIN);
 

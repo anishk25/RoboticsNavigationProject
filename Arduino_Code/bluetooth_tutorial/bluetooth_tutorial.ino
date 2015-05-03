@@ -1,6 +1,5 @@
 #include <SoftwareSerial.h>
 #include <Servo.h>
-#include<TimerThree.h>
 
 #define LED_PIN 13
 #define RX_PIN 10
@@ -11,7 +10,7 @@
 #define MAX_BYTES_TO_WRITE 4
 #define INTERUPT_PERIOD 1000000
 
-#define MSG
+
 
 SoftwareSerial bluetooth(RX_PIN,TX_PIN);
 //int bluetooth_data;
@@ -26,14 +25,14 @@ void setup(){
   testServo.attach(SERVO_PIN);
   bluetooth.begin(9600);
   pinMode(LED_PIN,OUTPUT);
-  Timer3.initialize();
-  Timer3.attachInterrupt(sendInterrupt,INTERUPT_PERIOD);
-  Timer3.start();
+  //Timer3.initialize();
+  //Timer3.attachInterrupt(sendInterrupt,INTERUPT_PERIOD);
+  //Timer3.start();
 }
 
 void loop(){
   
-   /*if(bluetooth.available()){
+   if(bluetooth.available()){
       bluetooth.readBytes(bluetooth_data,MAX_BYTES_TO_READ);
       int servoAngle = atoi(bluetooth_data);
       int ledValue = map(servoAngle,0,180,0,255);
@@ -43,8 +42,8 @@ void loop(){
           receive_valid_count++;
       }
    }
-   delay(50);*/
-   /*if(receive_valid_count != old_receive_count){
+   delay(50);
+  /*if(receive_valid_count != old_receive_count){
      old_receive_count = receive_valid_count;
      if(receive_valid_count % 2 == 0){
        bluetooth.write("E.");

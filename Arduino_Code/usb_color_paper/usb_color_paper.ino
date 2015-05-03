@@ -1,37 +1,31 @@
+#include <SoftwareSerial.h>
 #define LED_PIN 13
+#define RX_PIN 10
+#define TX_PIN 11
 
-#define ANDROID_MESSAGE_LENGTH 4
 
-#define IDLE_COLOR_PAPER_STATE   0
-#define SEARCH_COLOR_PAPER_STATE 1
-#define DONE_COLOR_PAPER_STATE   2
+#define ANDROID_MESSAGE_LENGTH 3
+#define STOP_CODE  200
+#define START_CODE 100
 
 char incomingAndroidMsg[ANDROID_MESSAGE_LENGTH];
-int curr_state;
+SoftwareSerial bluetooth(RX_PIN,TX_PIN);
 
 void setup(){
-  Serial.begin(9600);
-  pinMode(LED_PIN,OUTPUT); 
-  curr_state = IDLE_COLOR_PAPER_STATE; 
+  bluetooth.begin(9600);
+  pinMode(LED_PIN,OUTPUT);  
 }
 void loop(){
-  if(Serial.available()){
-      Serial.readBytes(incomingAndroidMsg,ANDROID_MESSAGE_LENGTH);
-      if(strcmp(incomingAndroidMsg,"STRT")){
-          curr_state = SEARCH_COLOR_PAPER_STATE;
-      }else if(strcmp(incomingAndroidMsg,"STOP")){
-          curr_state = DONE_COLOR_PAPER_STATE;
+  if(bluetooth.available()){
+      bluetooth.readBytes(incomingAndroidMsg,ANDROID_MESSAGE_LENGTH);
+      int code  = atoi(incomingAndroidMsg);
+      if(code == START_CODE){
+          analogWrite(LED_PIN,100);
+      }else if(code == STOP_CODE){
+          analogWrite(LED_PIN,200);
       }
   }
-  ledBehavior();
-}
-
-void ledBehavior(){
-   if(curr_state == SEARCH_COLOR_PAPER_STATE){
-      analogWrite(LED_PIN,50); 
-   }else if(curr_state == DONE_COLOR_PAPER_STATE){
-      digitalWrite(LED_PIN,HIGH);
-   }
+  delay(50);
 }
 
 
