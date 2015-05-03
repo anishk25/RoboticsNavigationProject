@@ -1,16 +1,20 @@
 package com.robot.processor.app;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 
-import com.robot.processor.communication.UsbController;
+import com.robot.processor.communication.BluetoothManager;
 import com.robot.processor.constants.Constants;
 
 import org.opencv.android.BaseLoaderCallback;
@@ -24,6 +28,8 @@ import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * Created by anish_khattar25 on 4/14/15.
@@ -34,13 +40,18 @@ public class ColorBlobDetectionActivity extends Activity implements CameraBridge
     private ColorBlobDetector mDetector;
     private Scalar CONTOUR_COLOR;
     private CameraBridgeViewBase mOpenCvCameraView;
-    private TextView             tvColorStateInfo,tvArduinoDebug;
-    private Button               bResetColorState;
+    private TextView             tvColorStateInfo;
+    private Button               bResetColorState,bStartBluetooth;
     private boolean              stopSignalSent = false;
+    EditText                     etNumSigns;
 
 
-    private int numSignsToSearch  = 1;
-    private UsbController usbController;
+
+    private int numSignsToSearch  = 5;
+    private BluetoothManager bluetoothManager;
+    private BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+    private BluetoothDevice pairedBluetoothDevice;
+
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -72,21 +83,48 @@ public class ColorBlobDetectionActivity extends Activity implements CameraBridge
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         setContentView(R.layout.color_blob_detection_surface_view);
-
-        // get data from previous activity
-        Bundle bundle = getIntent().getExtras();
-        numSignsToSearch = bundle.getInt(Constants.NUM_SIGNS_BUNDLE_KEY);
-
         initUI();
+        enableBluetooth();
+        connectToBluetoothDevice();
     }
 
     private void initUI(){
 
         tvColorStateInfo = (TextView)findViewById(R.id.tvColorState);
-        tvArduinoDebug = (TextView)findViewById(R.id.tvArduinoDebug);
+        etNumSigns = (EditText)findViewById(R.id.etNumSigns);
         bResetColorState = (Button)findViewById(R.id.bResetColorState);
+        bResetColorState.setOnClickListener(this);
+        bStartBluetooth = (Button)findViewById(R.id.bStartBluetooth);
+        bStartBluetooth.setOnClickListener(this);
+
         mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.color_blob_detection_activity_surface_view);
         mOpenCvCameraView.setCvCameraViewListener(this);
+
+    }
+
+    private void enableBluetooth(){
+        if(mBluetoothAdapter != null && !mBluetoothAdapter.isEnabled()){
+            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableIntent,1);
+        }
+    }
+
+    private void connectToBluetoothDevice(){
+        Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
+        if(pairedDevices.size() > 0){
+            for(BluetoothDevice device: pairedDevices){
+                if(device.getAddress().equals(Constants.HC05_BLUETOOTH_ADDRESS2)){
+                    pairedBluetoothDevice = device;
+                    break;
+                }
+            }
+        }
+
+        if(pairedBluetoothDevice != null){
+            UUID uuid = UUID.fromString(Constants.HC05_UUID);
+            bluetoothManager = new BluetoothManager(pairedBluetoothDevice,mBluetoothAdapter,uuid,this);
+        }
+
 
     }
 
@@ -109,11 +147,6 @@ public class ColorBlobDetectionActivity extends Activity implements CameraBridge
 
     public void onDestroy() {
         super.onDestroy();
-        if(usbController != null) {
-            usbController.stopUSBThread();
-            usbController = null;
-        }
-
         if (mOpenCvCameraView != null)
             mOpenCvCameraView.disableView();
     }
@@ -123,8 +156,6 @@ public class ColorBlobDetectionActivity extends Activity implements CameraBridge
         mDetector = new ColorBlobDetector(numSignsToSearch);
         CONTOUR_COLOR = new Scalar(255,0,0,255);
 
-        // Arduino Will start blinking with this signal
-        sendSignalToArduino(Constants.ARDUINO_START_SIGNAL);
 
     }
 
@@ -150,15 +181,15 @@ public class ColorBlobDetectionActivity extends Activity implements CameraBridge
                 colorStr = "Searching for first color";
                 break;
             case RED_STATE:
-                colorStr = "Searching for red color";
+                colorStr = "Searching for red color, count: " + mDetector.getFoundSignCount()  ;
                 break;
             case YELLOW_STATE:
-                colorStr = "Searching for yellow color";
+                colorStr = "Searching for yellow color, count: " + mDetector.getFoundSignCount();
                 break;
             case DONE_SEARCHING:
                 colorStr = "Done Searching for colors";
                 if(!stopSignalSent){
-                    sendSignalToArduino(Constants.ARDUINO_STOP_SIGNAL);
+                    sendMessageToArduino(Constants.ARDUINO_STOP_SIGNAL);
                     stopSignalSent = true;
                 }
                 break;
@@ -176,11 +207,10 @@ public class ColorBlobDetectionActivity extends Activity implements CameraBridge
     }
 
 
-    private void sendSignalToArduino(String signal){
-        if(usbController == null){
-            usbController = new UsbController(getApplicationContext(),getIntent(),tvArduinoDebug,this);
+    public void sendMessageToArduino(String msg){
+        if(bluetoothManager != null){
+            bluetoothManager.sendMessage(msg.getBytes());
         }
-        usbController.sendData(signal.getBytes());
     }
 
 
@@ -190,7 +220,11 @@ public class ColorBlobDetectionActivity extends Activity implements CameraBridge
             case R.id.bResetColorState:
                 mDetector.resetStateMachine();
                 stopSignalSent = false;
-                sendSignalToArduino(Constants.ARDUINO_START_SIGNAL);
+                numSignsToSearch = Integer.parseInt(etNumSigns.getText().toString());
+                mDetector.setNumSignsToSearch(numSignsToSearch);
+                sendMessageToArduino(Constants.ARDUINO_START_SIGNAL);
+            case R.id.bStartBluetooth:
+                bluetoothManager.connectToDevice();
         }
     }
 }

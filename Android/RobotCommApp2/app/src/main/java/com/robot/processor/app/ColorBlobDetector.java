@@ -22,7 +22,7 @@ public class ColorBlobDetector {
     // Minimum contour area in percent for contours filtering
     private static double mMinContourArea = 3000;
     // Color radius for range checking in HSV color space
-    private Scalar mColorRadius = new Scalar(25,50,50,0);
+    private Scalar mColorRadius = new Scalar(20,20,20,0);
     private List<MatOfPoint> mContours = new ArrayList<MatOfPoint>();
     private static String TAG = ColorBlobDetector.class.getCanonicalName();
     private int foundSignCount = 0;
@@ -47,6 +47,8 @@ public class ColorBlobDetector {
     private ColorState currColorState = ColorState.SEARCH_FIRST_STATE;
     private static final Scalar RED_COLOR = new Scalar(177, 10, 14,255);
     private static final Scalar YELLOW_COLOR = new Scalar(170, 170, 40, 255);
+
+    //private static final Scalar YELLOW_COLOR = new Scalar(203, 159, 24, 255);
 
     private static final Scalar[] COLORS_TO_SEARCH = {RED_COLOR,YELLOW_COLOR};
     private static final ColorState [] COLOR_STATES = {ColorState.RED_STATE, ColorState.YELLOW_STATE};
@@ -135,17 +137,17 @@ public class ColorBlobDetector {
             case RED_STATE:
                 setHsvColor(convertScalarRgba2Hsv(RED_COLOR));
                 processColorInImage(rgbaImage);
-                foundSignCount++;
                 if(mContours.size() > 0){
                     currColorState = COLOR_STATES[(currColorState.getValue() + 1) % COLOR_STATES.length];
+                    foundSignCount++;
                 }
                 break;
             case YELLOW_STATE:
                 setHsvColor(convertScalarRgba2Hsv(YELLOW_COLOR));
                 processColorInImage(rgbaImage);
-                foundSignCount++;
                 if(mContours.size() > 0){
                     currColorState = COLOR_STATES[(currColorState.getValue() + 1) % COLOR_STATES.length];
+                    foundSignCount++;
                 }
                 break;
             case DONE_SEARCHING:
@@ -160,8 +162,18 @@ public class ColorBlobDetector {
         return currColorState;
     }
 
+    public int getFoundSignCount(){
+        return foundSignCount;
+    }
+
     public void resetStateMachine(){
         currColorState = ColorState.SEARCH_FIRST_STATE;
+        foundSignCount = 0;
+
+    }
+
+    public void setNumSignsToSearch(int numSigns){
+        this.numSignsToSearch = numSigns;
     }
 
     private Scalar convertScalarRgba2Hsv(Scalar rgbaColor){

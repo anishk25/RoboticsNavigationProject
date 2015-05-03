@@ -5,8 +5,10 @@ package com.robot.processor.constants;
  */
 public class Constants {
 
-    public static final String NUM_SIGNS_BUNDLE_KEY = "NUM_SIGNS";
-    public static final String ARDUINO_STOP_SIGNAL = "STOP";
-    public static final String ARDUINO_START_SIGNAL = "STRT";
+    public static final String ARDUINO_STOP_SIGNAL = "200";
+    public static final String ARDUINO_START_SIGNAL = "100";
+    public static final String HC05_BLUETOOTH_ADDRESS2 = "98:D3:31:90:0C:7C";
+    public static final String HC05_UUID = "00001101-0000-1000-8000-00805f9b34fb";
+
 
 }

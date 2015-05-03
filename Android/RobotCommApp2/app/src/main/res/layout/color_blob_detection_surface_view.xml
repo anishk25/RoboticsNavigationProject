@@ -6,7 +6,7 @@
 
     <org.opencv.android.JavaCameraView
         android:layout_width="fill_parent"
-        android:layout_height="300dp"
+        android:layout_height="270dp"
         android:id="@+id/color_blob_detection_activity_surface_view" />
 
 
@@ -21,20 +21,29 @@
             android:text="Color State Here"
             android:id="@+id/tvColorState"
             />
-        <TextView
-            android:layout_width="wrap_content"
+        <EditText
+            android:layout_marginLeft="20dp"
+            android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:text="Arduino Debug Info"
-            android:layout_marginLeft="150dp"
-            android:id="@+id/tvArduinoDebug"
+            android:hint="NumSigns"
+            android:id="@+id/etNumSigns"
+            android:inputType="number"
             />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="150dp"
+            android:layout_marginLeft="20dp"
             android:text="Reset"
             android:id="@+id/bResetColorState"
+            />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:text="HC-05 Conn"
+            android:id="@+id/bStartBluetooth"
             />
         </LinearLayout>
 
