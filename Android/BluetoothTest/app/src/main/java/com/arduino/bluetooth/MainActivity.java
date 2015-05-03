@@ -76,13 +76,16 @@ public class MainActivity extends Activity implements View.OnClickListener{
             for(BluetoothDevice device: pairedDevices){
                if(device.getAddress().equals(address)){
                     pairedBluetoothDevice = device;
-                }
-                //s+= "Device Name: " + device.getName() + " Address: " + device.getAddress()+"\n";
+                   s+= "Device Name: " + device.getName() + " Address: " + device.getAddress()+"\n";
+
+               }
 
             }
         }
         if(pairedBluetoothDevice != null){
-            pairedDeviceUUID = UUID.fromString(pairedBluetoothDevice.getUuids()[0].toString());
+           // pairedDeviceUUID = UUID.fromString(pairedBluetoothDevice.getUuids()[0].toString());
+
+            pairedDeviceUUID = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
             tvBluetooth.setText("Found Device with name " + pairedBluetoothDevice.getName() + " and UUID " + pairedBluetoothDevice.getUuids()[0].toString() ) ;
         }
         //tvBluetooth.setText(s);
@@ -130,6 +133,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
                 break;
         }
     }
+
 
     public void updateReceivedText(int bytesRead, byte[] buffer){
         String msg = new String(buffer,0,bytesRead);
