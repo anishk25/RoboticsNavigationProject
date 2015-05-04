@@ -1,0 +1,6 @@
+package hallway_nav;
+
+public class RoomMappings {
+	public static final double [] BLANKENSHIP_HALL_DIST = {6,13,9,13,8,14,10,10,6,17,10,12,10,5};
+
+}

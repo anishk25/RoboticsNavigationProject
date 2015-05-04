@@ -1,0 +1,8 @@
+package hallway_nav;
+
+public class Driver {
+
+	public static void main(String [] args){
+		HallwayNavigator hn = new HallwayNavigator(1339, 13231);
+	}
+}
