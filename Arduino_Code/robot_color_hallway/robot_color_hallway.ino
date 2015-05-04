@@ -13,6 +13,7 @@
 
 #define MOTOR_FORWARD 81
 #define MOTOR_BREAK 95
+#define MOTOR_BACKWARD 107
 
 #define BACK_SERVO_PIN 9
 #define FRONT_SERVO_PIN 8
@@ -34,6 +35,8 @@
 #define ANDROID_MESSAGE_LENGTH 3
 #define STOP_CODE  200
 #define START_CODE 100
+#define FORWARD_CODE 301
+#define BACKWARD_CODE 302
 #define RX_PIN 10
 #define TX_PIN 11
 
@@ -174,10 +177,14 @@ void receiveAndroidSignals(){
   if(bluetooth.available()){
       bluetooth.readBytes(incomingAndroidMsg,ANDROID_MESSAGE_LENGTH);
       int code  = atoi(incomingAndroidMsg);
-      if(code == START_CODE){
+      if(code == FORWARD_CODE){
            motorDirection = MOTOR_FORWARD;
-           ledBrightness =100;
-      }else if(code == STOP_CODE){
+           ledBrightness = 50;
+      }else if(code == BACKWARD_CODE){
+           motorDirection = MOTOR_BACKWARD;
+           ledBrightness = 100;
+      }
+      else if(code == STOP_CODE){
            motorDirection = MOTOR_BREAK;
            ledBrightness = 200;
       }

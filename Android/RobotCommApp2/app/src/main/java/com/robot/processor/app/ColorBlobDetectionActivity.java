@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import com.robot.processor.communication.BluetoothManager;
 import com.robot.processor.constants.Constants;
+import com.robot.processor.map.HallwayMap;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
@@ -41,9 +42,11 @@ public class ColorBlobDetectionActivity extends Activity implements CameraBridge
     private Scalar CONTOUR_COLOR;
     private CameraBridgeViewBase mOpenCvCameraView;
     private TextView             tvColorStateInfo;
+    private EditText             etStartRoom,etEndRoom;
     private Button               bResetColorState,bStartBluetooth;
     private boolean              stopSignalSent = false;
-    EditText                     etNumSigns;
+    //EditText                     etNumSigns;
+
 
 
 
@@ -91,7 +94,11 @@ public class ColorBlobDetectionActivity extends Activity implements CameraBridge
     private void initUI(){
 
         tvColorStateInfo = (TextView)findViewById(R.id.tvColorState);
-        etNumSigns = (EditText)findViewById(R.id.etNumSigns);
+       // etNumSigns = (EditText)findViewById(R.id.etNumSigns);
+
+        etStartRoom = (EditText)findViewById(R.id.etStartNum);
+        etEndRoom = (EditText)findViewById(R.id.etEndNum);
+
         bResetColorState = (Button)findViewById(R.id.bResetColorState);
         bResetColorState.setOnClickListener(this);
         bStartBluetooth = (Button)findViewById(R.id.bStartBluetooth);
@@ -220,9 +227,13 @@ public class ColorBlobDetectionActivity extends Activity implements CameraBridge
             case R.id.bResetColorState:
                 mDetector.resetStateMachine();
                 stopSignalSent = false;
-                numSignsToSearch = Integer.parseInt(etNumSigns.getText().toString());
-                mDetector.setNumSignsToSearch(numSignsToSearch);
-                sendMessageToArduino(Constants.ARDUINO_START_SIGNAL);
+                //numSignsToSearch = Integer.parseInt(etNumSigns.getText().toString());
+                //mDetector.setNumSignsToSearch(numSignsToSearch);
+                int start = Integer.parseInt(etStartRoom.getText().toString());
+                int end = Integer.parseInt(etEndRoom.getText().toString());
+                mDetector.resetMap(start,end);
+                sendMessageToArduino(mDetector.getDirectionFromMap());
+                //sendMessageToArduino(Constants.ARDUINO_START_SIGNAL);
             case R.id.bStartBluetooth:
                 bluetoothManager.connectToDevice();
         }

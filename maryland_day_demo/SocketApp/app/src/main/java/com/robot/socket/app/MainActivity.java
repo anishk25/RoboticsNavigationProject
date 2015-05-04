@@ -23,13 +23,14 @@ import java.net.URISyntaxException;
 public class MainActivity extends Activity implements View.OnClickListener {
 
     private TextView tvSocketMessage,tvArduinoDebug;
-    private Button bStartTransfer;
+    private Button bStartTransfer,bSendMessage;
     private Socket mSocket;
     private static final String SERVER_URL = "http://floating-fortress-9962.herokuapp.com/";
     private static final String TAG = MainActivity.class.getCanonicalName();
     private static final String SOCKET_HANDLE = "robot_command";
     private UsbController usbController;
     private Emitter.Listener onRobotMessage;
+    private String directionString;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +47,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
         tvArduinoDebug = (TextView)findViewById(R.id.tvArduinoDebug);
         bStartTransfer = (Button)findViewById(R.id.bStartTransfer);
         bStartTransfer.setOnClickListener(this);
+        bSendMessage = (Button)findViewById(R.id.bSendMessage);
+        bSendMessage.setOnClickListener(this);
     }
 
 
@@ -54,18 +57,19 @@ public class MainActivity extends Activity implements View.OnClickListener {
         onRobotMessage = new Emitter.Listener(){
             @Override
             public void call(final Object... args) {
+                JSONObject data = (JSONObject) args[0];
+                final String direction;
+                try {
+                    direction = data.getString("direction");
+                    directionString = direction;
+                    sendMessageToArduino(direction);
+                } catch (JSONException e) {
+                    return;
+                }
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        JSONObject data = (JSONObject) args[0];
-                        String direction;
-                        try {
-                            direction = data.getString("direction");
-                            tvSocketMessage.setText("Direction Received: " + direction);
-                            sendMessageToArduino(direction);
-                        } catch (JSONException e) {
-                            return;
-                        }
+                         tvSocketMessage.setText("Direction Received: " + direction);
                     }
                 });
             }
@@ -119,8 +123,12 @@ public class MainActivity extends Activity implements View.OnClickListener {
                     usbController = new UsbController(getApplicationContext(),getIntent(),tvArduinoDebug,this);
                 }else{
                     usbController.stopUSBThread();
-                    usbController = null;
                     usbController = new UsbController(getApplicationContext(),getIntent(),tvArduinoDebug,this);
+                }
+                break;
+            case R.id.bSendMessage:
+                if(usbController != null) {
+                    usbController.sendData(directionString.getBytes());
                 }
                 break;
         }

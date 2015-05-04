@@ -32,7 +32,7 @@
 // pin, only the front one will be changing angles
 // according to received message, back servo will always
 // remain at 90
-Servo frontServo, backServo, motorServo;
+//Servo frontServo, backServo, motorServo;
 
 int motorDirection = MOTOR_BREAK;
 int ledBrightness = 0;
@@ -41,13 +41,11 @@ int servoAngle = STRAIGHT_ANGLE;
 char incomingMessage[4];
 
 void setup(){
-  motorServo.attach(MOTOR_PIN);
-  frontServo.attach(FRONT_SERVO_PIN);
-  backServo.attach(BACK_SERVO_PIN);
-  pinMode(LED_PIN,OUTPUT);
-  
-  frontServo.write(STRAIGHT_ANGLE);
-  backServo.write(STRAIGHT_ANGLE);
+  //motorServo.attach(MOTOR_PIN);
+  //frontServo.attach(FRONT_SERVO_PIN);
+  //backServo.attach(BACK_SERVO_PIN);
+  pinMode(LED_PIN,OUTPUT); 
+  Serial.begin(57600);
 }
 
 void loop(){
@@ -73,8 +71,9 @@ void loop(){
            ledBrightness = STOP_BRIGHTNESS; 
        }
   }
-    frontServo.write(servoAngle);
-    motorServo.write(motorDirection);
+    //frontServo.write(servoAngle);
+    //motorServo.write(motorDirection);
+    //backServo.write(STRAIGHT_ANGLE);
     analogWrite(LED_PIN,ledBrightness);
 }  
 

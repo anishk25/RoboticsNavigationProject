@@ -9,6 +9,7 @@ import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbEndpoint;
 import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
+import android.view.animation.AccelerateInterpolator;
 import android.widget.TextView;
 
 /**
@@ -22,15 +23,16 @@ public class UsbController {
     private UsbDevice usbDevice;
     private TextView tvDebug;
     private UsbSendThread mUsbSend;
-    private Thread mUsbSendThread;
+    private UsbReceiveThread mUsbReceive;
+    private Thread mUsbSendThread, mUsbReceiveThread;
     private  UsbEndpoint epIN,epOUT;
     private UsbDeviceConnection connection;
 
 
-    public UsbController(Context context, Intent intent, TextView tvDebug, Activity activity){
+    public UsbController(Context context,Intent intent,TextView tvDebug, Activity activity){
         mApplicationContext = context;
         mIntent = intent;
-         mUsbManager = (UsbManager)mApplicationContext.getSystemService(Context.USB_SERVICE);
+        mUsbManager = (UsbManager)mApplicationContext.getSystemService(Context.USB_SERVICE);
         usbDevice = (UsbDevice)mIntent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
         mActivity = activity;
         this.tvDebug = tvDebug;
@@ -38,8 +40,6 @@ public class UsbController {
         if(usbDevice != null && mUsbManager.hasPermission(usbDevice)){
             tvDebug.setText("Arduino has permission!");
             startHandler();
-        }else{
-            tvDebug.setText("No Device Connected!");
         }
     }
 
@@ -53,7 +53,12 @@ public class UsbController {
         openUSBConnection();
         mUsbSend = new UsbSendThread();
         mUsbSendThread = new Thread(mUsbSend);
+
+        mUsbReceive = new UsbReceiveThread();
+        mUsbReceiveThread = new Thread(mUsbReceive);
+
         mUsbSendThread.start();
+        mUsbReceiveThread.start();
 
     }
 
@@ -64,8 +69,8 @@ public class UsbController {
         }
         connection.controlTransfer(0x21,34,0,0,null,0,0);
         connection.controlTransfer(0x21,32,0,0,new byte[]{(byte)0x80,0x25,0x00, 0x00, 0x00, 0x00, 0x08},7,0);
-        connection.controlTransfer(0x40, 0x03, 0x4138, 0, null, 0, 0); //Baudrate 9600
-
+        //connection.controlTransfer(0x40, 0x03, 0x4138, 0, null, 0, 0); //Baudrate 9600
+        connection.controlTransfer(0x40, 0x03, 0x0034, 0, null, 0, 0); //Baudrate 57600
 
         UsbInterface usbItf = usbDevice.getInterface(1);
 
@@ -100,13 +105,18 @@ public class UsbController {
             if(mUsbSendThread != null) {
                 mUsbSendThread.join();
             }
+            if(mUsbReceiveThread != null){
+                mUsbReceiveThread.join();
+            }
 
         } catch (InterruptedException e) {
-           e.printStackTrace();
+            e.printStackTrace();
         }
         mStop = false;
         mUsbSend = null;
         mUsbSendThread = null;
+        mUsbReceive = null;
+        mUsbReceiveThread = null;
     }
 
     // MAIN LOOP
@@ -142,7 +152,35 @@ public class UsbController {
         }
     }
 
+    private class UsbReceiveThread implements Runnable{
 
+        @Override
+        public void run() {
+
+            for(;;) {
+                final byte[] data = new byte[1];
+                int len = connection.bulkTransfer(epIN, data, 1, 10);
+                if (len > 0) {
+                    mActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            tvDebug.setText("getting data " + (int)data[0]);
+
+                        }
+                    });
+                    try {
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if(mStop){
+                    return;
+                }
+            }
+
+        }
+    }
 
 
 

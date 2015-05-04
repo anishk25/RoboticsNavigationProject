@@ -1,5 +1,7 @@
 package com.robot.processor.app;
 
+import com.robot.processor.map.HallwayMap;
+
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -27,6 +29,7 @@ public class ColorBlobDetector {
     private static String TAG = ColorBlobDetector.class.getCanonicalName();
     private int foundSignCount = 0;
     private int numSignsToSearch;
+    private HallwayMap hallwayMap;
 
 
     public static  enum ColorState{
@@ -67,7 +70,9 @@ public class ColorBlobDetector {
 
     public ColorBlobDetector(int numSignsToSearch){
         this.numSignsToSearch = numSignsToSearch;
+        this.hallwayMap = new HallwayMap(1411,14172);
     }
+
     public void setColorRadius(Scalar radius) {
         mColorRadius = radius;
     }
@@ -139,6 +144,7 @@ public class ColorBlobDetector {
                 processColorInImage(rgbaImage);
                 if(mContours.size() > 0){
                     currColorState = COLOR_STATES[(currColorState.getValue() + 1) % COLOR_STATES.length];
+                    hallwayMap.updatePositionInMap();
                     foundSignCount++;
                 }
                 break;
@@ -147,15 +153,19 @@ public class ColorBlobDetector {
                 processColorInImage(rgbaImage);
                 if(mContours.size() > 0){
                     currColorState = COLOR_STATES[(currColorState.getValue() + 1) % COLOR_STATES.length];
+                    hallwayMap.updatePositionInMap();
                     foundSignCount++;
                 }
                 break;
             case DONE_SEARCHING:
                 break;
         }
-        if(foundSignCount >= numSignsToSearch){
+        if(hallwayMap.getEndReached()){
             currColorState = ColorState.DONE_SEARCHING;
         }
+        /*if(foundSignCount >= numSignsToSearch){
+            currColorState = ColorState.DONE_SEARCHING;
+        }*/
     }
 
     public ColorState getCurrColorState(){
@@ -169,8 +179,17 @@ public class ColorBlobDetector {
     public void resetStateMachine(){
         currColorState = ColorState.SEARCH_FIRST_STATE;
         foundSignCount = 0;
-
     }
+
+    public void resetMap(int startRoom, int endRoom){
+        hallwayMap.setStartEndRoom(startRoom,endRoom);
+        hallwayMap.setEndReached(false);
+    }
+
+    public String getDirectionFromMap(){
+        return hallwayMap.getRobotDirection();
+    }
+
 
     public void setNumSignsToSearch(int numSigns){
         this.numSignsToSearch = numSigns;

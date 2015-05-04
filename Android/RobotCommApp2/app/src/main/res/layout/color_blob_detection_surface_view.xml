@@ -23,10 +23,19 @@
             />
         <EditText
             android:layout_marginLeft="20dp"
-            android:layout_width="150dp"
+            android:layout_width="60dp"
             android:layout_height="wrap_content"
-            android:hint="NumSigns"
-            android:id="@+id/etNumSigns"
+            android:hint="Start"
+            android:id="@+id/etStartNum"
+            android:inputType="number"
+            />
+
+        <EditText
+            android:layout_marginLeft="20dp"
+            android:layout_width="60dp"
+            android:layout_height="wrap_content"
+            android:hint="End"
+            android:id="@+id/etEndNum"
             android:inputType="number"
             />
 
