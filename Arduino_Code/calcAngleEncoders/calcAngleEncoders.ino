@@ -12,7 +12,7 @@
 
 #define BACK_SERVO_PIN 9
 #define FRONT_SERVO_PIN 8
-#define MOTOR_PIN 11
+#define MOTOR_PIN 26
 
 const float gearRatio = 64*16;
 const float cm_per_tick = WHEEL_CIRCUMFRENCE_CM/gearRatio;
@@ -45,7 +45,7 @@ void setup(){
 }
 
 void loop(){
-  if(curr_angle <= 3.14){
+  if(curr_angle <= 1.57){
     updateEncoders();
     calcRobotAngle();
   }else{

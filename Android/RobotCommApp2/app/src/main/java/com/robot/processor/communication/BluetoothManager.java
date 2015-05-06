@@ -127,12 +127,14 @@ public class BluetoothManager {
                     // Read from the InputStream
                     if(mmInStream != null) {
                         num_bytes_read = mmInStream.read(read_buffer);
-                        /*passingActivity.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                passingActivity.updateReceivedText(num_bytes_read,read_buffer);
-                            }
-                        });*/
+                        if(num_bytes_read > 0){
+                            passingActivity.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    passingActivity.parseReceivedMessage(num_bytes_read,read_buffer);
+                                }
+                            });
+                        }
                     }
                     // Send the obtained bytes to the UI activity;
                 } catch (IOException e) {

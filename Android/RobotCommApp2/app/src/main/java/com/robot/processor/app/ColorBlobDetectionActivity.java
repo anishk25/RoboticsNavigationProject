@@ -16,7 +16,6 @@ import android.widget.TextView;
 
 import com.robot.processor.communication.BluetoothManager;
 import com.robot.processor.constants.Constants;
-import com.robot.processor.map.HallwayMap;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
@@ -45,7 +44,8 @@ public class ColorBlobDetectionActivity extends Activity implements CameraBridge
     private EditText             etStartRoom,etEndRoom;
     private Button               bResetColorState,bStartBluetooth;
     private boolean              stopSignalSent = false;
-    //EditText                     etNumSigns;
+    boolean receiveFirstTime = true;
+    String receivedMessage;
 
 
 
@@ -131,8 +131,6 @@ public class ColorBlobDetectionActivity extends Activity implements CameraBridge
             UUID uuid = UUID.fromString(Constants.HC05_UUID);
             bluetoothManager = new BluetoothManager(pairedBluetoothDevice,mBluetoothAdapter,uuid,this);
         }
-
-
     }
 
     @Override
@@ -160,10 +158,8 @@ public class ColorBlobDetectionActivity extends Activity implements CameraBridge
 
     public void onCameraViewStarted(int width, int height) {
         mRgba = new Mat(height, width, CvType.CV_8UC4);
-        mDetector = new ColorBlobDetector(numSignsToSearch);
+        mDetector = new ColorBlobDetector(numSignsToSearch,this);
         CONTOUR_COLOR = new Scalar(255,0,0,255);
-
-
     }
 
     public void onCameraViewStopped() {
@@ -181,7 +177,7 @@ public class ColorBlobDetectionActivity extends Activity implements CameraBridge
     }
 
     private void checkCurrColorState(){
-        ColorBlobDetector.ColorState currState = mDetector.getCurrColorState();
+        ColorBlobDetector.RobotState currState = mDetector.getCurrColorState();
         final String colorStr;
         switch (currState){
             case SEARCH_FIRST_STATE:
@@ -200,6 +196,9 @@ public class ColorBlobDetectionActivity extends Activity implements CameraBridge
                     stopSignalSent = true;
                 }
                 break;
+            case TURN_STATE:
+                colorStr = "Robot Turning";
+                break;
             default:
                 colorStr = "";
                 break;
@@ -210,7 +209,6 @@ public class ColorBlobDetectionActivity extends Activity implements CameraBridge
                 tvColorStateInfo.setText(colorStr);
             }
         });
-
     }
 
 
@@ -219,6 +217,30 @@ public class ColorBlobDetectionActivity extends Activity implements CameraBridge
             bluetoothManager.sendMessage(msg.getBytes());
         }
     }
+
+
+    public void parseReceivedMessage(int bytesRead, byte[] buffer){
+        String msg = new String(buffer,0,bytesRead);
+        if(receiveFirstTime){
+            receivedMessage = msg;
+            receiveFirstTime = false;
+            if(msg.substring(msg.length()-1).equals(".")){
+                receiveFirstTime = true;
+                if(receivedMessage.equals(Constants.ARDUINO_TURN_COMPLETE_SIGNAL)){
+                    mDetector.setTurnCompleted();
+                }
+            }
+        }else{
+            receivedMessage += msg;
+            if(msg.substring(msg.length()-1).equals(".")){
+                receiveFirstTime = true;
+                if(receivedMessage.equals(Constants.ARDUINO_TURN_COMPLETE_SIGNAL)){
+                    mDetector.setTurnCompleted();
+                }
+            }
+        }
+    }
+
 
 
     @Override
@@ -233,7 +255,6 @@ public class ColorBlobDetectionActivity extends Activity implements CameraBridge
                 int end = Integer.parseInt(etEndRoom.getText().toString());
                 mDetector.resetMap(start,end);
                 sendMessageToArduino(mDetector.getDirectionFromMap());
-                //sendMessageToArduino(Constants.ARDUINO_START_SIGNAL);
             case R.id.bStartBluetooth:
                 bluetoothManager.connectToDevice();
         }

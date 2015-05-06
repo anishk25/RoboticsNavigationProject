@@ -3,11 +3,12 @@ package hallway_nav;
 public class Driver {
 
 	public static void main(String [] args){
-		HallwayNavigator hn = new HallwayNavigator(13231,1339);
+		HallwayNavigator hn = new HallwayNavigator(1411,1317);
 		while(!hn.getDestReached()){
-			System.out.println("Current point is " + hn.getCurrentPointPaper());
-			hn.updateBasedOnPaperSeen();
+			System.out.println("Current point is " + hn.getCurrentPoint());
+			hn.updatePosition();
 		}
-		System.out.println("Current point is " + hn.getCurrentPointPaper());
+		System.out.println("Current point is " + hn.getCurrentPoint());
+
 	}
 }

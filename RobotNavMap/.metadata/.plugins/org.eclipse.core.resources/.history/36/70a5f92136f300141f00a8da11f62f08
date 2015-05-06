@@ -1,0 +1,131 @@
+package hallway_nav;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+public class HallwayNavigator {
+	private int startRoom,endRoom;
+	private enum Direction{
+		FORWARD,BACKWARD
+	}
+	private Direction currDirection;
+	private int currRoomIndex;
+	private ArrayList<Integer> currHallway;
+	private ArrayList<Integer> blankenshipHallway,rennerHallway,sunLabHallway;
+	private HashMap<String, ArrayList<Integer>> hallways;
+	private boolean destReached;
+	
+	
+	public HallwayNavigator(int startRoom, int endRoom){
+		this.startRoom = startRoom;
+		this.endRoom = endRoom;
+		this.blankenshipHallway = new ArrayList<Integer>();
+		this.rennerHallway = new ArrayList<Integer>();
+		this.sunLabHallway = new ArrayList<Integer>();
+		this.hallways = new HashMap<String, ArrayList<Integer>>();
+		this.destReached = false;
+		initHallways();
+		selectCurrentHallway();
+		calculateDirection();
+	}
+	
+	public void setStartEnd(int startRoom, int endRoom) throws IllegalArgumentException {
+		if(startRoom != endRoom){
+			this.startRoom = startRoom;
+			this.endRoom = endRoom;
+			this.destReached = false;
+			selectCurrentHallway();
+			calculateDirection();
+		}else{
+			throw new IllegalArgumentException("Start and end room must be different");
+		}
+	}
+	
+	
+	private void initHallways(){
+		fillInHallway(RoomMappings.BLANKENSHIP_HALL_ROOMS, RoomMappings.BLANKENSHIP_HALL_DIST, blankenshipHallway);
+		fillInHallway(RoomMappings.RENNER_HALL_ROOMS, RoomMappings.RENNER_HALL_DIST, rennerHallway);
+		fillInHallway(RoomMappings.SUNLAB_HALL_ROOMS, RoomMappings.SUNLAB_HALL_DIST, sunLabHallway);
+		
+		hallways.put("BLANKENSHIP", blankenshipHallway);
+		hallways.put("RENNER", rennerHallway);
+		hallways.put("SUNLAB", sunLabHallway);
+	}
+	
+	
+	private void fillInHallway(int [] rooms, int [] distances, ArrayList<Integer> hallway){
+		for(int i = 0; i < rooms.length; i++){
+			int dist = distances[i];
+			int roomNum = rooms[i];
+			hallway.add(roomNum);
+		}
+	}
+	
+	private void selectCurrentHallway(){
+		for(ArrayList<Integer> hall : hallways.values()){
+			if(hall.contains(startRoom)){
+				currHallway = hall;
+				break;
+			}
+		}
+		
+		
+	}
+	
+	private void calculateDirection(){
+		int index_start = currHallway.indexOf(startRoom);
+		int index_end = currHallway.indexOf(endRoom);
+		this.currIndex = index_start;
+		this.currRoomColorIndex = currHallwayRooms.indexOf(startRoom);
+		
+		if(index_start < index_end){
+			currDirection = Direction.FORWARD;
+		}else{
+			currDirection = Direction.BACKWARD;
+		}
+	}
+	
+	public void updatePosition(){
+		if(!destReached){
+			if(currDirection == Direction.FORWARD){
+				currIndex += 1;
+			}else{
+				currIndex -= 1;
+			}
+			if(currHallwayFull.get(currIndex) == endRoom){
+				destReached = true;
+			}
+		}
+	}
+	
+	public void updateBasedOnPaperSeen(){
+		if(!destReached){
+			if(currDirection == Direction.FORWARD){
+				currRoomColorIndex += 1;
+			}else{
+				currRoomColorIndex -= 1;
+			}
+			if(currHallwayRooms.get(currRoomColorIndex) == endRoom){
+				destReached = true;
+			}
+		}
+		
+	}
+	
+	public boolean getDestReached(){
+		return destReached;
+	}
+	
+	public int getCurrentPoint(){
+		return currHallwayFull.get(currIndex);
+	}
+	
+	public int getCurrentPointPaper(){
+		return currHallwayRooms.get(currRoomColorIndex);
+	}
+	
+	
+	
+	
+
+}

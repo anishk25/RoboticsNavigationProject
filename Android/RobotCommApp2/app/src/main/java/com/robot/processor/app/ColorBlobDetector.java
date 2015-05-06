@@ -1,6 +1,7 @@
 package com.robot.processor.app;
 
-import com.robot.processor.map.HallwayMap;
+import com.robot.processor.constants.Constants;
+import com.robot.processor.map.HallwayNavigator;
 
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
@@ -29,14 +30,15 @@ public class ColorBlobDetector {
     private static String TAG = ColorBlobDetector.class.getCanonicalName();
     private int foundSignCount = 0;
     private int numSignsToSearch;
-    private HallwayMap hallwayMap;
+    private HallwayNavigator hallwayNavigator;
+    private ColorBlobDetectionActivity passingActivity;
 
 
-    public static  enum ColorState{
-        SEARCH_FIRST_STATE(-1),RED_STATE(0),YELLOW_STATE(1),SEND_STOP(25),DONE_SEARCHING(50),;
+    public static  enum RobotState{
+        SEARCH_FIRST_STATE(-1),RED_STATE(0),YELLOW_STATE(1),TURN_STATE(25),DONE_TURN_STATE(26),DONE_SEARCHING(50),;
 
         private final int value;
-        private ColorState(int value) {
+        private RobotState(int value) {
             this.value = value;
         }
 
@@ -47,14 +49,15 @@ public class ColorBlobDetector {
 
     };
 
-    private ColorState currColorState = ColorState.SEARCH_FIRST_STATE;
+    private RobotState currRobotState = RobotState.SEARCH_FIRST_STATE;
+    private RobotState nextRobotState;
     private static final Scalar RED_COLOR = new Scalar(177, 10, 14,255);
     private static final Scalar YELLOW_COLOR = new Scalar(170, 170, 40, 255);
 
     //private static final Scalar YELLOW_COLOR = new Scalar(203, 159, 24, 255);
 
     private static final Scalar[] COLORS_TO_SEARCH = {RED_COLOR,YELLOW_COLOR};
-    private static final ColorState [] COLOR_STATES = {ColorState.RED_STATE, ColorState.YELLOW_STATE};
+    private static final RobotState [] COLOR_STATES = {RobotState.RED_STATE, RobotState.YELLOW_STATE};
 
 
 
@@ -68,9 +71,10 @@ public class ColorBlobDetector {
 
 
 
-    public ColorBlobDetector(int numSignsToSearch){
+    public ColorBlobDetector(int numSignsToSearch,ColorBlobDetectionActivity passingActivity){
         this.numSignsToSearch = numSignsToSearch;
-        this.hallwayMap = new HallwayMap(1411,14172);
+        this.hallwayNavigator = new HallwayNavigator(1411,14172);
+        this.passingActivity = passingActivity;
     }
 
     public void setColorRadius(Scalar radius) {
@@ -127,13 +131,13 @@ public class ColorBlobDetector {
 
     public void searchForColor(Mat rgbaImage){
         List<MatOfPoint> contours;
-        switch(currColorState){
+        switch(currRobotState){
             case SEARCH_FIRST_STATE:
                 for(int i = 0; i < COLORS_TO_SEARCH.length; i++){
                     setHsvColor(convertScalarRgba2Hsv(COLORS_TO_SEARCH[i]));
                     processColorInImage(rgbaImage);
                     if(mContours.size() > 0){
-                        currColorState = COLOR_STATES[i];
+                        currRobotState = COLOR_STATES[i];
                         foundSignCount = 1;
                         break;
                     }
@@ -143,8 +147,14 @@ public class ColorBlobDetector {
                 setHsvColor(convertScalarRgba2Hsv(RED_COLOR));
                 processColorInImage(rgbaImage);
                 if(mContours.size() > 0){
-                    currColorState = COLOR_STATES[(currColorState.getValue() + 1) % COLOR_STATES.length];
-                    hallwayMap.updatePositionInMap();
+                    hallwayNavigator.updatePosition();
+                    if(hallwayNavigator.isNeedToTurn()){
+                        passingActivity.sendMessageToArduino(Constants.ARDUINO_TURN_ROBOT_SIGNAL);
+                        currRobotState = RobotState.TURN_STATE;
+                        nextRobotState = RobotState.RED_STATE;
+                    }else {
+                        currRobotState = COLOR_STATES[(currRobotState.getValue() + 1) % COLOR_STATES.length];
+                    }
                     foundSignCount++;
                 }
                 break;
@@ -152,24 +162,34 @@ public class ColorBlobDetector {
                 setHsvColor(convertScalarRgba2Hsv(YELLOW_COLOR));
                 processColorInImage(rgbaImage);
                 if(mContours.size() > 0){
-                    currColorState = COLOR_STATES[(currColorState.getValue() + 1) % COLOR_STATES.length];
-                    hallwayMap.updatePositionInMap();
+                    hallwayNavigator.updatePosition();
+                    if(hallwayNavigator.isNeedToTurn()){
+                        passingActivity.sendMessageToArduino(Constants.ARDUINO_TURN_ROBOT_SIGNAL);
+                        currRobotState = RobotState.TURN_STATE;
+                        nextRobotState = RobotState.YELLOW_STATE;
+                    }else {
+                        currRobotState = COLOR_STATES[(currRobotState.getValue() + 1) % COLOR_STATES.length];
+                    }
                     foundSignCount++;
                 }
                 break;
+            case TURN_STATE:
+                break;
+            case DONE_TURN_STATE:
+                currRobotState = nextRobotState;
             case DONE_SEARCHING:
                 break;
         }
-        if(hallwayMap.getEndReached()){
-            currColorState = ColorState.DONE_SEARCHING;
+        if(hallwayNavigator.getDestReached()){
+            currRobotState = RobotState.DONE_SEARCHING;
         }
         /*if(foundSignCount >= numSignsToSearch){
             currColorState = ColorState.DONE_SEARCHING;
         }*/
     }
 
-    public ColorState getCurrColorState(){
-        return currColorState;
+    public RobotState getCurrColorState(){
+        return currRobotState;
     }
 
     public int getFoundSignCount(){
@@ -177,18 +197,22 @@ public class ColorBlobDetector {
     }
 
     public void resetStateMachine(){
-        currColorState = ColorState.SEARCH_FIRST_STATE;
+        currRobotState = RobotState.SEARCH_FIRST_STATE;
         foundSignCount = 0;
     }
 
     public void resetMap(int startRoom, int endRoom){
-        hallwayMap.setStartEndRoom(startRoom,endRoom);
-        hallwayMap.setEndReached(false);
+        hallwayNavigator.setStartEnd(startRoom, endRoom);
     }
 
     public String getDirectionFromMap(){
-        return hallwayMap.getRobotDirection();
+        switch(hallwayNavigator.getCurrDirection()){
+            case FORWARD: return Constants.ARDUINO_FORWARD_SIGNAL;
+            case BACKWARD:return Constants.ARDUINO_BACKWARD_SIGNAL;
+            default: return "";
+        }
     }
+
 
 
     public void setNumSignsToSearch(int numSigns){
@@ -204,5 +228,15 @@ public class ColorBlobDetector {
 
     public List<MatOfPoint> getContours() {
         return mContours;
+    }
+
+    public boolean robotNeedsToTurn(){
+        return hallwayNavigator.isNeedToTurn();
+    }
+
+    public void setTurnCompleted(){
+        if(currRobotState == RobotState.TURN_STATE){
+            currRobotState = RobotState.DONE_TURN_STATE;
+        }
     }
 }
