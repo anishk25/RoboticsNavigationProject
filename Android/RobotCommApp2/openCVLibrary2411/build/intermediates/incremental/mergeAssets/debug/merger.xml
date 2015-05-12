@@ -1,2 +1,2 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merger version="3"><dataSet config="main"><source path="/Users/anish_khattar25/Documents/robotics_project/Android/RobotCommApp2/openCVLibrary2411/src/main/assets"/></dataSet><dataSet config="debug"><source path="/Users/anish_khattar25/Documents/robotics_project/Android/RobotCommApp2/openCVLibrary2411/src/debug/assets"/></dataSet></merger>
+<merger version="3"><dataSet config="main"><source path="C:\Users\ryn\Documents\GitHub\RoboticsNavigationProject\Android\RobotCommApp2\openCVLibrary2411\src\main\assets"/></dataSet><dataSet config="debug"><source path="C:\Users\ryn\Documents\GitHub\RoboticsNavigationProject\Android\RobotCommApp2\openCVLibrary2411\src\debug\assets"/></dataSet></merger>

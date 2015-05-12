@@ -17,6 +17,7 @@ public class HallwayNavigator {
 	private HashMap<String, ArrayList<Integer>> hallways;
 	private boolean destReached;
     private boolean needToTurn = false;
+    private boolean firstUpdate;
 	
 	
 	public HallwayNavigator(int startRoom, int endRoom){
@@ -96,12 +97,18 @@ public class HallwayNavigator {
 				currDirection = Direction.BACKWARD;
 			}
 		}
+        firstUpdate = true;
 	}
 	
 	public void updatePosition(){
 		// only works for blankenship and renner hallway for now
 		// code will break if any other hallway is used!
-		
+        int index_start = currHallway.indexOf(startRoom);
+        if(firstUpdate==true){
+            currRoomIndex = index_start;
+            this.firstUpdate = false;
+            return;
+        }
 		if(!destReached){
             needToTurn = false;
 			if(currDirection == Direction.FORWARD){
