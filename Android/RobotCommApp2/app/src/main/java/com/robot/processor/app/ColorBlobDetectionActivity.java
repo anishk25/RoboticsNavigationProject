@@ -199,6 +199,9 @@ public class ColorBlobDetectionActivity extends Activity implements CameraBridge
             case TURN_STATE:
                 colorStr = "Robot Turning";
                 break;
+            case IDLE:
+                colorStr = "IDLE";
+                break;
             default:
                 colorStr = "";
                 break;
@@ -241,13 +244,10 @@ public class ColorBlobDetectionActivity extends Activity implements CameraBridge
         }
     }
 
-
-
     @Override
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.bResetColorState:
-                mDetector.resetStateMachine();
                 stopSignalSent = false;
                 //numSignsToSearch = Integer.parseInt(etNumSigns.getText().toString());
                 //mDetector.setNumSignsToSearch(numSignsToSearch);
@@ -255,6 +255,7 @@ public class ColorBlobDetectionActivity extends Activity implements CameraBridge
                 int end = Integer.parseInt(etEndRoom.getText().toString());
                 mDetector.resetMap(start,end);
                 sendMessageToArduino(mDetector.getDirectionFromMap());
+                mDetector.resetStateMachine();
             case R.id.bStartBluetooth:
                 bluetoothManager.connectToDevice();
         }

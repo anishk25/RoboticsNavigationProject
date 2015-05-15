@@ -93,7 +93,6 @@ void setup(){
   motorServo.attach(MOTOR_PIN);
   frontServo.attach(BACK_SERVO_PIN);
   backServo.attach(FRONT_SERVO_PIN);
-  
   motorServo.write(MOTOR_FORWARD);
   
   setDistDiff = 1.0;
@@ -121,8 +120,6 @@ void navigateInHallway(){
   computePIDOut();
   setServoAngle();
   checkForHallwayEdge();
-  //updateEncoders();
-  //calcRobotPos();
 }
 
 void turnInHallway(){
@@ -183,7 +180,6 @@ void computePIDOut(){
            distDiffBack = 76.2f  - pingValues.back_right;
         }
      }
-    
     distPIDFront.Compute();
     distPIDBack.Compute();
 }

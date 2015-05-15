@@ -9,6 +9,7 @@
 
 #define MOTOR_FORWARD 82
 #define MOTOR_BREAK 95
+#define MOTOR_BACKWARD 105
 
 #define BACK_SERVO_PIN 9
 #define FRONT_SERVO_PIN 8
@@ -38,9 +39,9 @@ void setup(){
   frontServo.attach(BACK_SERVO_PIN);
   backServo.attach(FRONT_SERVO_PIN);
   
-  backServo.write(40);
-  frontServo.write(150);
-  motorServo.write(MOTOR_FORWARD);
+  backServo.write(150);
+  frontServo.write(40);
+  motorServo.write(MOTOR_BACKWARD);
  
 }
 

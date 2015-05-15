@@ -35,7 +35,7 @@ public class ColorBlobDetector {
 
 
     public static  enum RobotState{
-        SEARCH_FIRST_STATE(-1),RED_STATE(0),YELLOW_STATE(1),TURN_STATE(25),DONE_TURN_STATE(26),DONE_SEARCHING(50),;
+        SEARCH_FIRST_STATE(-1),RED_STATE(0),YELLOW_STATE(1),TURN_STATE(25),DONE_TURN_STATE(26),DONE_SEARCHING(50),IDLE(100);
 
         private final int value;
         private RobotState(int value) {
@@ -49,7 +49,7 @@ public class ColorBlobDetector {
 
     };
 
-    private RobotState currRobotState = RobotState.SEARCH_FIRST_STATE;
+    private RobotState currRobotState = RobotState.IDLE;
     private RobotState nextRobotState;
     private static final Scalar RED_COLOR = new Scalar(177, 10, 14,255);
     private static final Scalar YELLOW_COLOR = new Scalar(170, 170, 40, 255);
@@ -153,7 +153,8 @@ public class ColorBlobDetector {
                         currRobotState = RobotState.TURN_STATE;
                         nextRobotState = RobotState.RED_STATE;
                     }else {
-                        currRobotState = COLOR_STATES[(currRobotState.getValue() + 1) % COLOR_STATES.length];
+                        //currRobotState = COLOR_STATES[(currRobotState.getValue() + 1) % COLOR_STATES.length];
+                        currRobotState = RobotState.YELLOW_STATE;
                     }
                     foundSignCount++;
                 }
@@ -168,7 +169,9 @@ public class ColorBlobDetector {
                         currRobotState = RobotState.TURN_STATE;
                         nextRobotState = RobotState.YELLOW_STATE;
                     }else {
-                        currRobotState = COLOR_STATES[(currRobotState.getValue() + 1) % COLOR_STATES.length];
+                        //currRobotState = COLOR_STATES[(currRobotState.getValue() + 1) % COLOR_STATES.length];
+                        currRobotState = RobotState.RED_STATE;
+
                     }
                     foundSignCount++;
                 }
@@ -178,6 +181,8 @@ public class ColorBlobDetector {
             case DONE_TURN_STATE:
                 currRobotState = nextRobotState;
             case DONE_SEARCHING:
+                break;
+            case IDLE:
                 break;
         }
         if(hallwayNavigator.getDestReached()){
@@ -230,9 +235,7 @@ public class ColorBlobDetector {
         return mContours;
     }
 
-    public boolean robotNeedsToTurn(){
-        return hallwayNavigator.isNeedToTurn();
-    }
+
 
     public void setTurnCompleted(){
         if(currRobotState == RobotState.TURN_STATE){
